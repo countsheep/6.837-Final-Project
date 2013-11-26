@@ -2,7 +2,7 @@
 
 using namespace std;
 
-BoidSystem::BoidSystem(int numParticles, BoundingBox& box){
+BoidSystem::BoidSystem(int numParticles, BoundingBox box){
 	m_numParticles = numParticles;
 	m_box = box;
 	for (int i = 0; i < m_numParticles; i++){
@@ -12,7 +12,7 @@ BoidSystem::BoidSystem(int numParticles, BoundingBox& box){
 	}
 }
 
-float BoidSystem::getAvgVelocity(){
+Vector3f BoidSystem::getAvgVelocity(){
 	Vector3f vel = Vector3f::ZERO;
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		vel += m_mahBoids[i].m_velocity;
@@ -20,7 +20,7 @@ float BoidSystem::getAvgVelocity(){
 	return vel/m_mahBoids.size();
 }
 
-float BoidSystem::getCenterOfMass(){
+Vector3f BoidSystem::getCenterOfMass(){
 	Vector3f pos = Vector3f::ZERO;
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		pos += m_mahBoids[i].m_position;
