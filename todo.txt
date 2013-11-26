@@ -1,0 +1,29 @@
+Goals for Thursday
+---------------------
+K - move function
+K - main method update
+E - (attempt) render boids as models/cloths
+K - (non-raytraced) implement find camera pos that views entire bounding box
+user interactivity ->
+* closest parallel xyz axis-plane, user can move a boid along that plane (should disable that boid's move function and override the user data)
+* force sphere that pushes boids out
+E - 	(1) - Closest parallel axis thing (take camera up vector * by each axis, pick plane that lies on axises that up vector is most perpedicular to, random tiebreaker)
+E -		(2) - mouse tracking?
+K -		(3) - integrate mouse tracking and move function
+K -		(4) - force sphere as a force
+
+Working on by Friday 
+--------------------
+ray tracing 
+lights/lighting, shading (specular/diffuse), shadowss
+ - camera movement (bind to keys)
+ - shadows mapping 
+
+Possibilities
+---------------------
+Different kinds of boids - competition
+Interesting backgrounds/models 
+bird bait "leader of boid"
+different shapes of bounding boxes (snowglobe)
+fireflies (each boid is a light source)
+boid particles set boundaries for the light source (a mass of contained light)

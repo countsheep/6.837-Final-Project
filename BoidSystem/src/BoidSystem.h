@@ -17,6 +17,8 @@ public:
 	int m_numParticles;
 	vector<Boid> m_mahBoids;
 	Vector3f goalPos; //if we decide to make boids tend to a specific position
+	// forces that move boids
+	vector<Vector3f> forces;
 	BoundingBox m_box;
 
 	// 
