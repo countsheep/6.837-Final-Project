@@ -10,7 +10,7 @@ class BoundingBox
 {
 public:
 
-	Boid(Vector3f minCoords, Vector3f maxCoords); //minCoords is of the form (min_x, min_y, min_z)
+	BoundingBox(Vector3f minCoords, Vector3f maxCoords); //minCoords is of the form (min_x, min_y, min_z)
 	
 	Vector3f m_minCoords;
 	Vector3f m_maxCoords;
@@ -21,6 +21,7 @@ public:
 	Vector3f getRandPosition();
 	// returns the center coordinate of the bounding box
 	Vector3f getCenter();
+	// TODO: decide where to put camera
 
 //protected:
 	
