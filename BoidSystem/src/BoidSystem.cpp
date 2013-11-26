@@ -1,12 +1,15 @@
 #include "BoidSystem.h"
+#include <iostream>
 
 using namespace std;
 
-BoidSystem::BoidSystem(int numParticles, BoundingBox box){
+BoidSystem::BoidSystem(int numParticles, BoundingBox box):m_box(box){
 	m_numParticles = numParticles;
-	m_box = box;
+	
 	for (int i = 0; i < m_numParticles; i++){
-		Boid b = Boid(m_box.getRandPosition(), Vector3f::ZERO, 53.0f, 2.0f);
+		Vector3f pos = m_box.getRandPosition();
+		//pos.print();
+		Boid b = Boid(pos, Vector3f::ZERO, 53.0f, 0.5f);
 		m_mahBoids.push_back(b);
 		goalPos = m_box.getCenter();
 	}

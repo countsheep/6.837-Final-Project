@@ -16,9 +16,9 @@ bool BoundingBox::isInBoundingBox(Vector3f coord){
 }
 
 Vector3f BoundingBox::getRandPosition(){
-	float x = m_minCoords.x() + (m_maxCoords.x() - m_minCoords.x()) * rand();
-	float y = m_minCoords.y() + (m_maxCoords.y() - m_minCoords.y()) * rand();
-	float z = m_minCoords.z() + (m_maxCoords.z() - m_minCoords.z()) * rand();
+	float x = m_minCoords.x() + (m_maxCoords.x() - m_minCoords.x()) * ((float)rand()/RAND_MAX);
+	float y = m_minCoords.y() + (m_maxCoords.y() - m_minCoords.y()) * ((float)rand()/RAND_MAX);
+	float z = m_minCoords.z() + (m_maxCoords.z() - m_minCoords.z()) *((float)rand()/RAND_MAX);
 	return Vector3f(x, y, z);
 }
 

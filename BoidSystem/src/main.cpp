@@ -58,8 +58,8 @@ namespace
     system2 = new SimpleSystem();
     system3 = new PendulumSystem(4);*/
     
-    BoundingBox box = BoundingBox(Vector3f(-10.0f, -10.0f, -10.0f), Vector3f(10.0f, 10.0f, 10.0f));
-    boidSys = new BoidSystem(5, box);
+    BoundingBox box = BoundingBox(Vector3f(-5.0f, -5.0f, -5.0f), Vector3f(5.0f, 5.0f, 5.0f));
+    boidSys = new BoidSystem(25, box);
   }
 
   // Take a step forward for the particle shower
