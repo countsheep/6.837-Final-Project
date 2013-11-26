@@ -20,10 +20,12 @@ public:
 	
 	// setter method for the system's state
 	void setPosition(<Vector3f>  & newPosition){ m_position = newPosition; };
-	void setVelocity(<Vector3f>  & newVelocity){ m_position = newVelocity; };
-	void setAcceleration(<Vector3f>  & newAcceleration){ m_position = newAcceleration; };
+	void setVelocity(<Vector3f>  & newVelocity){ m_velocity = newVelocity; };
+	void setAcceleration(<Vector3f>  & newAcceleration){ m_acceleration = newAcceleration; };
 	
-//protected:
+	// reset position, velocity, and/or acceleration if pertinent
+	void move();
+protected:
 	void draw() = 0;
 	
 };
