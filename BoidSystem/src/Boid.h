@@ -19,14 +19,13 @@ public:
 	float m_personal_bubble; //radius around self
 	
 	// setter method for the system's state
-	void setPosition(<Vector3f>  & newPosition){ m_position = newPosition; };
-	void setVelocity(<Vector3f>  & newVelocity){ m_velocity = newVelocity; };
-	void setAcceleration(<Vector3f>  & newAcceleration){ m_acceleration = newAcceleration; };
+	void setPosition(Vector3f & newPosition){ m_position = newPosition; };
+	void setVelocity(Vector3f  & newVelocity){ m_velocity = newVelocity; };
+	void setAcceleration(Vector3f  & newAcceleration){ m_acceleration = newAcceleration; };
 	
 	// reset position, velocity, and/or acceleration if pertinent
-	void move();
-protected:
-	void draw() = 0;
+	//void move();
+	void draw();
 	
 };
 

@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <vecmath.h>
+#include "BoundingBox.h"
+#include "Boid.h"
 
 using namespace std;
 
@@ -23,9 +25,7 @@ public:
 	// getter method for center of mass
 	Vector3f getCenterOfMass();
 	
-protected:
-
-	void draw() = 0;
+	void draw();
 	
 };
 

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-BoidSystem::BoidSystem(int numParticles, BoundingBox box){
+BoidSystem::BoidSystem(int numParticles, BoundingBox& box){
 	m_numParticles = numParticles;
 	m_box = box;
 	for (int i = 0; i < m_numParticles; i++){
@@ -28,7 +28,7 @@ float BoidSystem::getCenterOfMass(){
 	return pos/m_mahBoids.size();
 }
 
-BoidSystem::draw(){
+void BoidSystem::draw(){
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		m_mahBoids[i].draw();
 	}

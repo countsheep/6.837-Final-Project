@@ -3,6 +3,9 @@
 #include <ctime>
 #include <iostream>
 #include <vector>
+#include "BoidSystem.h"
+#include "Boid.h"
+#include "BoundingBox.h"
 
 #include "extra.h"
 #include "camera.h"
@@ -24,13 +27,14 @@ namespace
     ParticleSystem *system2;
     PendulumSystem *system3;
     TimeStepper * timeStepper;
+    BoidSystem* boidSys;
     float h = 0.02f;
 
   // initialize your particle systems
   ///TODO: read argv here. set timestepper , step size etc
   void initSystem(int argc, char * argv[])
   {
-    //first paramter
+    /*//first paramter
     h = (float)(atof(argv[2]));
     //cout << h << endl;
     //second parameter
@@ -52,7 +56,10 @@ namespace
     srand( time( NULL ) );
     system = new ClothSystem(8, 8);	
     system2 = new SimpleSystem();
-    system3 = new PendulumSystem(4);
+    system3 = new PendulumSystem(4);*/
+    
+    BoundingBox box = BoundingBox(Vector3f(-10.0f, -10.0f, -10.0f), Vector3f(10.0f, 10.0f, 10.0f));
+    boidSys = new BoidSystem(5, box);
   }
 
   // Take a step forward for the particle shower
@@ -74,7 +81,7 @@ namespace
   {
     
     // Base material colors (they don't change)
-    GLfloat particleColor[] = {0.4f, 0.7f, 1.0f, 1.0f};
+    /*GLfloat particleColor[] = {0.4f, 0.7f, 1.0f, 1.0f};
     GLfloat floorColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
     
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, particleColor);
@@ -90,7 +97,8 @@ namespace
     glTranslatef(0.0f,-5.0f,0.0f);
     glScaled(50.0f,0.01f,50.0f);
     glutSolidCube(1);
-    glPopMatrix();
+    glPopMatrix();*/
+    boidSys->draw();
     
   }
         
