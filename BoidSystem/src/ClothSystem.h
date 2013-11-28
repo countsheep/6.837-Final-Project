@@ -10,11 +10,12 @@ class ClothSystem: public ParticleSystem
 {
 ///ADD MORE FUNCTION AND FIELDS HERE
 public:
-	ClothSystem(int w, int h);
+	ClothSystem(int w, int h, Vector3f initPos);
 	vector<Vector3f> evalF(vector<Vector3f> state);
 	Vector3f getForce(int x, int y, vector<Vector3f> state);
 	void draw();
 	void toggleWind();
+	Vector3f vel;
 
 private:
 	int w;

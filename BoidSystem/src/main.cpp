@@ -34,30 +34,8 @@ namespace
   ///TODO: read argv here. set timestepper , step size etc
   void initSystem(int argc, char * argv[])
   {
-    /*//first paramter
-    h = (float)(atof(argv[2]));
-    //cout << h << endl;
-    //second parameter
-    string stepper = string(argv[1]);
-    //cout << stepper << endl;
-    if(stepper=="e"){
-        timeStepper = new ForwardEuler();
-        //cout << "Euler" << endl;
-    }
-    else if(stepper=="t"){
-        timeStepper = new Trapzoidal();
-        //cout << "Trap" << endl;
-    }
-    else if(stepper=="r"){
-        timeStepper = new RK4();
-        //cout << "RK4" << endl;
-    }
-    // seed the random number generator with the current time
-    srand( time( NULL ) );
-    system = new ClothSystem(8, 8);	
-    system2 = new SimpleSystem();
-    system3 = new PendulumSystem(4);*/
-    
+    // seed random number generator
+    srand(time (0));
     BoundingBox box = BoundingBox(Vector3f(-5.0f, -5.0f, -5.0f), Vector3f(5.0f, 5.0f, 5.0f));
     boidSys = new BoidSystem(25, box);
   }
@@ -69,11 +47,12 @@ namespace
   {
       ///TODO The stepsize should change according to commandline arguments
     //const float h = 0.02f;
-    if(timeStepper!=0){
-      timeStepper->takeStep(system,h);
-      timeStepper->takeStep(system2, h);
-      timeStepper->takeStep(system3, h);
-    }
+    // if(timeStepper!=0){
+    //   timeStepper->takeStep(system,h);
+    //   timeStepper->takeStep(system2, h);
+    //   timeStepper->takeStep(system3, h);
+    // }
+    boidSys->stepSystem();
   }
 
   // Draw the current particle positions
@@ -138,11 +117,11 @@ namespace
             camera.SetCenter( Vector3f::ZERO );
             break;
         }
-        case 'r':
+       /* case 'r':
         {
             system = new ClothSystem(8, 8);
             break;
-        }
+        }*/
         case 'w':
         {
             system->toggleWind();
@@ -159,7 +138,6 @@ namespace
     // received.  Right now, it's handling the arrow keys.
     void specialFunc( int key, int x, int y )
     {
-    	cout << key << endl;
         switch ( key )
         {
 
@@ -171,6 +149,7 @@ namespace
     void mouseFunc(int button, int state, int x, int y)
     {
     	int key = glutGetModifiers();
+    	cout <<key << endl<< GLUT_ACTIVE_CTRL<< endl<< endl;
         if (state == GLUT_DOWN)
         {
             g_mousePressed = true;
@@ -178,7 +157,12 @@ namespace
             switch (button)
             {
             case GLUT_LEFT_BUTTON:
-                camera.MouseClick(Camera::LEFT, x, y);
+            	if (key == GLUT_ACTIVE_CTRL){ 
+                	camera.MouseClick(Camera::LEFT, x, y);
+                }
+                else{
+                	
+                }
                 break;
             case GLUT_MIDDLE_BUTTON:
                 camera.MouseClick(Camera::MIDDLE, x, y);
