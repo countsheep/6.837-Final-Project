@@ -21,7 +21,7 @@ public:
 	vector<Vector3f> forces;
 	BoundingBox m_box;
 
-	Vector3f defaultWind = Vector3f(0.15f, 0.0f, 0.0f);
+	Vector3f defaultWind = Vector3f(0.05f, 0.0f, 0.0f);
 
 	// 
 	Vector3f getAvgVelocity();
@@ -31,8 +31,8 @@ public:
 	Vector3f getCenterOfMassMinusB(int b);
 	Vector3f getAvoidanceOffset(int b);
 	Vector3f getAverageVelocity(int b);
+	Vector3f stayInBounds(int b);
 	Vector3f stepSystem();
-	Vector3f getGlobalForces();
 
 	float getDist(Vector3f p1, Vector3f p2);
 	

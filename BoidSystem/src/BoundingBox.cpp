@@ -26,3 +26,16 @@ Vector3f BoundingBox::getRandPosition(){
 Vector3f BoundingBox::getCenter(){
 	return Vector3f( (m_minCoords.x()+m_maxCoords.x())/2.0f, (m_minCoords.y()+m_maxCoords.y())/2.0f, (m_minCoords.z()+m_maxCoords.z())/2.0f );
 }
+
+float BoundingBox::getXDim(){
+	return m_maxCoords.x() - m_minCoords.x();
+}
+
+float BoundingBox::getYDim(){
+	return m_maxCoords.y() - m_minCoords.y();
+}
+
+float BoundingBox::getZDim(){
+	return m_maxCoords.z() - m_minCoords.z();
+}
+

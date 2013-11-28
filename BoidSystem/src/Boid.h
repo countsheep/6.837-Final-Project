@@ -29,7 +29,7 @@ public:
 	
 	// reset position, velocity, and/or acceleration if pertinent
 	// c_m represents the center of mass of all the other boid individuals
-	void move(Vector3f c_m, Vector3f vel_rule2, Vector3f vel_rule3, Vector3f vel_rule4);
+	void move(Vector3f c_m, vector<Vector3f> vels);
 	void draw();
 	void stepSystem();
 	TimeStepper* step;

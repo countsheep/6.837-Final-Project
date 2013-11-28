@@ -9,7 +9,7 @@ BoidSystem::BoidSystem(int numParticles, BoundingBox box):m_box(box){
 	
 	for (int i = 0; i < m_numParticles; i++){
 		Vector3f pos = m_box.getRandPosition();
-		pos.print();
+		//pos.print();
 		Boid b = Boid(pos, Vector3f::ZERO, 53.0f, 0.15f);
 		m_mahBoids.push_back(b);
 		goalPos = m_box.getCenter();
@@ -37,6 +37,8 @@ Vector3f BoidSystem::getCenterOfMassMinusB(int b){
 	return pos/(m_mahBoids.size()-1);
 }
 
+//TOOD dislike the hardcoding with the direction change for avoidance
+//causes weird bubbling
 Vector3f BoidSystem::getAvoidanceOffset(int b){
 	Vector3f vel = Vector3f::ZERO;
 	Vector3f pos = m_mahBoids[b].m_position;
@@ -57,19 +59,49 @@ Vector3f BoidSystem::getAverageVelocity(int b){
 	return 0.125f * avg_vel / (m_mahBoids.size()-1);
 }
 
+
+//if boid crosses boundary lines, pushes boid back by 1% of the bounding box size
+Vector3f BoidSystem::stayInBounds(int b){
+	Vector3f vel = Vector3f::ZERO;
+	Vector3f pos = m_mahBoids[b].m_position;
+	// test x bounds
+	if(pos.x() < m_box.m_minCoords.x()){
+		vel += Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
+	}
+	else if(pos.x() > m_box.m_maxCoords.x()){
+		vel -= Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
+	}
+	// test y bounds
+	if(pos.y() < m_box.m_minCoords.y()){
+		vel += Vector3f(m_box.getYDim() * 0.01f, 0.0f, 0.0f);
+	}
+	else if(pos.y() > m_box.m_maxCoords.y()){
+		vel -= Vector3f(m_box.getYDim() * 0.01f, 0.0f, 0.0f);
+	}
+	// test z bounds
+	if(pos.z() < m_box.m_minCoords.z()){
+		vel += Vector3f(m_box.getZDim() * 0.01f, 0.0f, 0.0f);
+	}
+	else if(pos.z() > m_box.m_maxCoords.z()){
+		vel -= Vector3f(m_box.getZDim() * 0.01f, 0.0f, 0.0f);
+	}
+	return vel;
+}
+
+
 Vector3f BoidSystem::stepSystem(){
-	//cout << "STEP SYSTEM";
 	for (int i = 0; i<m_mahBoids.size(); i++){
-		m_mahBoids[i].move(getCenterOfMassMinusB(i), getAvoidanceOffset(i), getAverageVelocity(i), defaultWind);
+		vector<Vector3f> vels;
+		vels.push_back(getAvoidanceOffset(i));
+		vels.push_back(getAverageVelocity(i));
+		vels.push_back(defaultWind);
+		vels.push_back(stayInBounds(i));
+		m_mahBoids[i].move(getCenterOfMassMinusB(i), vels);
 		m_mahBoids[i].stepSystem();
 	}
 }
 
 float BoidSystem::getDist(Vector3f p1, Vector3f p2){
-	//cout << "distance finding";
-	//p1.print();
-	//p2.print();
-	//cout << sqrt(pow(p1.x()-p2.x(), 2.0f) + pow(p1.y()-p2.y(), 2.0f) + pow(p1.z()-p2.z(), 2.0f));
 	return sqrt(pow(p1.x()-p2.x(), 2.0f) + pow(p1.y()-p2.y(), 2.0f) + pow(p1.z()-p2.z(), 2.0f));
 }
 
