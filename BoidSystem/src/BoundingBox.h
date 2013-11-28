@@ -21,6 +21,10 @@ public:
 	Vector3f getRandPosition();
 	// returns the center coordinate of the bounding box
 	Vector3f getCenter();
+
+	float getXDim();
+	float getYDim();
+	float getZDim();
 	// TODO: decide where to put camera
 
 //protected:
