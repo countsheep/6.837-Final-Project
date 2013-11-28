@@ -25,7 +25,8 @@ public:
 	void setAcceleration(Vector3f  & newAcceleration){ m_acceleration = newAcceleration; };
 	
 	// reset position, velocity, and/or acceleration if pertinent
-	//void move();
+	// c_m represents the center of mass of all the other boid individuals
+	void move(Vector3f c_m, Vector3f vel_rule2, Vector3f vel_rule3, Vector3f vel_rule4);
 	void draw();
 	
 };
