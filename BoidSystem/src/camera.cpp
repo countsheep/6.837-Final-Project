@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "extra.h"
+#include <cmath>
 
 using namespace std;
 
@@ -9,6 +10,9 @@ Camera::Camera()
 {
     mStartRot = Matrix4f::identity();
     mCurrentRot = Matrix4f::identity();
+    plane_up = Vector3f(0.0f, 1.0f, 0.0f);
+    plane_horizontal = Vector3f(1.0f, 0.0f, 0.0f);
+    
 }
 
 void Camera::SetDimensions(int w, int h)
@@ -94,6 +98,8 @@ void Camera::MouseRelease(int x, int y)
     mStartDistance = mCurrentDistance;
     
     mButtonState = NONE;
+    
+    setPlane();
 }
 
 
@@ -167,7 +173,6 @@ void Camera::ArcBallRotation(int x, int y)
     {
         mCurrentRot = mStartRot;
     }
-
 
 }
 
@@ -254,4 +259,47 @@ void Camera::DistanceZoom(int x, int y)
 
     // exponential zoom factor
     mCurrentDistance = mStartDistance * exp(delta);  
+}
+
+Vector3f Camera::getNearestUp(){
+	return plane_up;
+}
+
+Vector3f Camera::getNearestHorizontal(){
+	return plane_horizontal;
+}
+
+void Camera::setPlane(){
+	Matrix4f current_view = this -> viewMatrix();
+	Vector3f x = Vector3f(1.0f, 0.0f, 0.0f);
+	Vector3f y = Vector3f(0.0f, 1.0f, 0.0f);
+	Vector3f z = Vector3f(0.0f, 0.0f, 1.0f);
+	
+	
+	Vector3f up = current_view.getCol(0).xyz();
+	Vector3f horizontal = current_view.getCol(1).xyz();
+	
+	vector<Vector3f> dots = {x, y, z};
+	float max_val = 0;
+	float max_int = 0;
+	for (int i  = 0; i < 3; i++){
+		float dot = abs(Vector3f::dot(up,dots[i]));
+		if (dot> max_val){
+			max_val = dot;
+			max_int = i;
+		}
+	}
+	plane_up = Vector3f(dots[max_int].x(), dots[max_int].y(), dots[max_int].z());
+	
+	max_val = 0;
+	max_int = 0;
+	for (int i  = 0; i < 3; i++){
+		float dot = abs(Vector3f::dot(horizontal,dots[i]));
+		if (dot> max_val){
+			max_val = dot;
+			max_int = i;
+		}
+	}
+	plane_horizontal = Vector3f(dots[max_int].x(), dots[max_int].y(), dots[max_int].z());
+	
 }

@@ -11,6 +11,7 @@
 #endif
 
 #include <vecmath.h>
+#include <vector>
 
 class Camera
 {
@@ -50,6 +51,10 @@ public:
     Matrix4f GetRotation() const { return mCurrentRot; }
     float GetDistance() const { return mCurrentDistance; }
     
+    //Get the vectors that describe the closest xyz plane
+    Vector3f getNearestUp();
+    Vector3f getNearestHorizontal();
+    
 private:
 
     // States 
@@ -74,6 +79,11 @@ private:
     void ArcBallRotation(int x, int y);
     void PlaneTranslation(int x, int y);
     void DistanceZoom(int x, int y);
+    
+    //Describe closest xyz plane
+    void setPlane();
+    Vector3f plane_up;
+    Vector3f plane_horizontal;
 };
 
 #endif

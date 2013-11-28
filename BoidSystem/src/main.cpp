@@ -159,6 +159,7 @@ namespace
     // received.  Right now, it's handling the arrow keys.
     void specialFunc( int key, int x, int y )
     {
+    	cout << key << endl;
         switch ( key )
         {
 
@@ -169,6 +170,7 @@ namespace
     //  Called when mouse button is pressed.
     void mouseFunc(int button, int state, int x, int y)
     {
+    	int key = glutGetModifiers();
         if (state == GLUT_DOWN)
         {
             g_mousePressed = true;
