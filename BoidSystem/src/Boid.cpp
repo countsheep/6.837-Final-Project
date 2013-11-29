@@ -41,6 +41,9 @@ void Boid::move(Vector3f c_m, vector<Vector3f> vels){
 	for(int i = 0; i < vels.size(); i++){
 		total_vel += vels[i];
 	}
+	// cap the max velocity of a boid
+	if(total_vel > m_max_speed)
+		total_vel = m_max_speed;
 	m_position += total_vel;
 	cloth->vel = total_vel;
 

@@ -10,7 +10,7 @@ BoidSystem::BoidSystem(int numParticles, BoundingBox box):m_box(box){
 	for (int i = 0; i < m_numParticles; i++){
 		Vector3f pos = m_box.getRandPosition();
 		//pos.print();
-		Boid b = Boid(pos, Vector3f::ZERO, 53.0f, 0.15f);
+		Boid b = Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.15f);
 		m_mahBoids.push_back(b);
 		goalPos = m_box.getCenter();
 	}
