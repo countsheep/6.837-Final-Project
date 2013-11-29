@@ -1,9 +1,10 @@
 Goals for Thursday
 ---------------------
-K - move function
-K - main method update
-E - (attempt) render boids as models/cloths
-K - (non-raytraced) implement find camera pos that views entire bounding box
+[x] K - move function
+[x] K - main method update
+[ ] E - (attempt) render boids as models/cloths
+[ ] K - (non-raytraced) implement find camera pos that views entire bounding box
+
 user interactivity ->
 * closest parallel xyz axis-plane, user can move a boid along that plane (should disable that boid's move function and override the user data)
 * force sphere that pushes boids out
@@ -14,6 +15,7 @@ K -		(4) - force sphere as a force
 
 Working on by Friday 
 --------------------
+** boids should only respond to nearby neighbors?
 ray tracing 
 lights/lighting, shading (specular/diffuse), shadowss
  - camera movement (bind to keys)
