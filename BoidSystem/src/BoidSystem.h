@@ -30,6 +30,8 @@ public:
 	Vector3f getCenterOfMass();
 	Vector3f getCenterOfMassMinusB(int b);
 	Vector3f moveTowardCenterOfMass(int b);
+	Vector3f moveAwayFromForceSphere(int b);
+	Vector3f moveTowardsGoalPoint(int b);
 	Vector3f getAvoidanceOffset(int b);
 	Vector3f getAverageVelocity(int b);
 	bool inBounds(int b);
