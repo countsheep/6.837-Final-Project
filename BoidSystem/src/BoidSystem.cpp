@@ -42,6 +42,14 @@ Vector3f BoidSystem::moveTowardCenterOfMass(int b){
 	return 0.005f * (c_m - m_mahBoids[b].m_position);
 }
 
+Vector3f BoidSystem::moveAwayFromForceSphere(int b){
+	
+}
+
+Vector3f BoidSystem::moveTowardsGoalPoint(int b){
+	
+}
+
 //TOOD dislike the hardcoding with the direction change for avoidance
 //causes weird bubbling
 Vector3f BoidSystem::getAvoidanceOffset(int b){
