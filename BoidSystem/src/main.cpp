@@ -157,7 +157,7 @@ namespace
             switch (button)
             {
             case GLUT_LEFT_BUTTON:
-            	if (key == GLUT_ACTIVE_CTRL){ 
+                if (key == GLUT_ACTIVE_CTRL){ 
                 	camera.MouseClick(Camera::LEFT, x, y);
                 }
                 else{

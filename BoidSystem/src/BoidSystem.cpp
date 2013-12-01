@@ -37,6 +37,11 @@ Vector3f BoidSystem::getCenterOfMassMinusB(int b){
 	return pos/(m_mahBoids.size()-1);
 }
 
+Vector3f BoidSystem::moveTowardCenterOfMass(int b){
+	Vector3f c_m = getCenterOfMassMinusB(b);
+	return 0.005f * (c_m - m_mahBoids[b].m_position);
+}
+
 //TOOD dislike the hardcoding with the direction change for avoidance
 //causes weird bubbling
 Vector3f BoidSystem::getAvoidanceOffset(int b){
@@ -61,42 +66,55 @@ Vector3f BoidSystem::getAverageVelocity(int b){
 
 
 //if boid crosses boundary lines, pushes boid back by 1% of the bounding box size
-Vector3f BoidSystem::stayInBounds(int b){
+bool BoidSystem::inBounds(int b){
 	Vector3f vel = Vector3f::ZERO;
 	Vector3f pos = m_mahBoids[b].m_position;
+	cout << "Size of bounding box " << endl;
+	m_box.m_minCoords.print();
+	m_box.m_maxCoords.print();
 	// test x bounds
 	if(pos.x() < m_box.m_minCoords.x()){
-		vel += Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
+		//vel += Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
+		return false;
 	}
 	else if(pos.x() > m_box.m_maxCoords.x()){
-		vel -= Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
+		//vel -= Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
+		return false;
 	}
 	// test y bounds
 	if(pos.y() < m_box.m_minCoords.y()){
-		vel += Vector3f(m_box.getYDim() * 0.01f, 0.0f, 0.0f);
+		//vel += Vector3f(m_box.getYDim() * 0.0f, 0.01f, 0.0f);
+		return false;
 	}
 	else if(pos.y() > m_box.m_maxCoords.y()){
-		vel -= Vector3f(m_box.getYDim() * 0.01f, 0.0f, 0.0f);
+		//vel -= Vector3f(m_box.getYDim() * 0.0f, 0.01f, 0.0f);
+		return false;
 	}
 	// test z bounds
 	if(pos.z() < m_box.m_minCoords.z()){
-		vel += Vector3f(m_box.getZDim() * 0.01f, 0.0f, 0.0f);
+		//vel += Vector3f(m_box.getZDim() * 0.0f, 0.0f, 0.01f);
+		return false;
 	}
 	else if(pos.z() > m_box.m_maxCoords.z()){
-		vel -= Vector3f(m_box.getZDim() * 0.01f, 0.0f, 0.0f);
+		//vel -= Vector3f(m_box.getZDim() * 0.0f, 0.0f, 0.01f);
+		return false;
 	}
-	return vel;
+	//return vel;
+	return true;
 }
 
 
 Vector3f BoidSystem::stepSystem(){
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		vector<Vector3f> vels;
-		vels.push_back(getAvoidanceOffset(i));
-		vels.push_back(getAverageVelocity(i));
-		vels.push_back(defaultWind);
-		vels.push_back(stayInBounds(i));
-		m_mahBoids[i].move(getCenterOfMassMinusB(i), vels);
+		//vels.push_back(stayInBounds(i));
+		if(inBounds(i)){
+			vels.push_back(moveTowardCenterOfMass(i));
+			vels.push_back(getAvoidanceOffset(i));
+			vels.push_back(getAverageVelocity(i));
+			vels.push_back(defaultWind);
+		}
+		m_mahBoids[i].move(vels);
 		m_mahBoids[i].stepSystem();
 	}
 }

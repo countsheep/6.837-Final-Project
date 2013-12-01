@@ -33,11 +33,10 @@ void Boid::draw(){
 //4. some kind of goal
 // also, keep velocity under max speed
 
-void Boid::move(Vector3f c_m, vector<Vector3f> vels){
+void Boid::move(vector<Vector3f> vels){
 	//move boid appr 1% of the way towards the center of mass of the rest of flock
 	//m_position.print();
-	Vector3f vel_rule1 = 0.01f * (c_m - m_position);
-	Vector3f total_vel = vel_rule1;
+	Vector3f total_vel = Vector3f::ZERO;
 	for(int i = 0; i < vels.size(); i++){
 		total_vel += vels[i];
 	}
@@ -47,5 +46,4 @@ void Boid::move(Vector3f c_m, vector<Vector3f> vels){
 	m_position += total_vel;
 	cloth->vel = total_vel;
 
-	//TODO: remain in boudning box
 }
