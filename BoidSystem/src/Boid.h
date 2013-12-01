@@ -21,6 +21,9 @@ public:
 	float m_max_speed;
 	Vector3f m_acceleration; 
 	float m_personal_bubble; //radius around self
+
+	int m_avoidance_decay_counter = 0;//for long lasting forces
+	Vector3f m_avoidanceVec;
 	
 	// setter method for the system's state
 	void setPosition(Vector3f & newPosition){ m_position = newPosition; };

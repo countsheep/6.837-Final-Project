@@ -36,7 +36,7 @@ namespace
   {
     // seed random number generator
     srand(time (0));
-    BoundingBox box = BoundingBox(Vector3f(-5.0f, -5.0f, -5.0f), Vector3f(5.0f, 5.0f, 5.0f));
+    BoundingBox box = BoundingBox(Vector3f(-7.0f, -7.0f, -7.0f), Vector3f(7.0f, 7.0f, 7.0f));
     boidSys = new BoidSystem(25, box);
   }
 

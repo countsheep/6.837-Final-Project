@@ -10,7 +10,7 @@ BoidSystem::BoidSystem(int numParticles, BoundingBox box):m_box(box){
 	for (int i = 0; i < m_numParticles; i++){
 		Vector3f pos = m_box.getRandPosition();
 		//pos.print();
-		Boid b = Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.15f);
+		Boid b = Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
 		m_mahBoids.push_back(b);
 		goalPos = m_box.getCenter();
 	}
@@ -37,30 +37,46 @@ Vector3f BoidSystem::getCenterOfMassMinusB(int b){
 	return pos/(m_mahBoids.size()-1);
 }
 
+Vector3f BoidSystem::getCenterOfMassOfBoids(vector<int> neighbors){
+	Vector3f pos = Vector3f::ZERO;
+	if(neighbors.size() == 0)
+		return Vector3f::ZERO;
+	for (int i = 0; i<neighbors.size(); i++){
+			pos += m_mahBoids[neighbors[i]].m_position;
+	}
+	return pos/(neighbors.size());
+}
+
 Vector3f BoidSystem::moveTowardCenterOfMass(int b){
-	Vector3f c_m = getCenterOfMassMinusB(b);
-	return 0.005f * (c_m - m_mahBoids[b].m_position);
+	Vector3f c_m = getCenterOfMassOfBoids(getNearestNeighbors(b));
+	return 0.01f * (c_m - m_mahBoids[b].m_position);
 }
 
 Vector3f BoidSystem::moveAwayFromForceSphere(int b){
-	
+
 }
 
 Vector3f BoidSystem::moveTowardsGoalPoint(int b){
-	
+
 }
 
 //TOOD dislike the hardcoding with the direction change for avoidance
 //causes weird bubbling
-Vector3f BoidSystem::getAvoidanceOffset(int b){
+void BoidSystem::getAvoidanceOffset(int b){
 	Vector3f vel = Vector3f::ZERO;
 	Vector3f pos = m_mahBoids[b].m_position;
+	bool violated = false;
 	float personal_bubble = m_mahBoids[b].m_personal_bubble;
 	for (int i = 0; i<m_mahBoids.size(); i++){
-		if(i != b && getDist(m_mahBoids[i].m_position, pos) < personal_bubble)
+		if(i != b && getDist(m_mahBoids[i].m_position, pos) < personal_bubble){
 			vel -= (m_mahBoids[i].m_position - pos);
+			violated = true;
+		}
 	}
-	return vel;
+	if(violated == true){
+		m_mahBoids[b].m_avoidance_decay_counter = 5;
+		m_mahBoids[b].m_avoidanceVec = vel;
+	}
 }
 
 Vector3f BoidSystem::getAverageVelocity(int b){
@@ -74,61 +90,130 @@ Vector3f BoidSystem::getAverageVelocity(int b){
 
 
 //if boid crosses boundary lines, pushes boid back by 1% of the bounding box size
-bool BoidSystem::inBounds(int b){
+Vector3f BoidSystem::inBounds(int b){
 	Vector3f vel = Vector3f::ZERO;
 	Vector3f pos = m_mahBoids[b].m_position;
-	cout << "Size of bounding box " << endl;
-	m_box.m_minCoords.print();
-	m_box.m_maxCoords.print();
+	//cout << "Size of bounding box " << endl;
+	//m_box.m_minCoords.print();
+	//m_box.m_maxCoords.print();
 	// test x bounds
 	if(pos.x() < m_box.m_minCoords.x()){
-		//vel += Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
-		return false;
+		vel += Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
+		//return false;
 	}
 	else if(pos.x() > m_box.m_maxCoords.x()){
-		//vel -= Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
-		return false;
+		vel -= Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
+		//return false;
 	}
 	// test y bounds
 	if(pos.y() < m_box.m_minCoords.y()){
-		//vel += Vector3f(m_box.getYDim() * 0.0f, 0.01f, 0.0f);
-		return false;
+		vel += Vector3f(m_box.getYDim() * 0.0f, 0.01f, 0.0f);
+		//return false;
 	}
 	else if(pos.y() > m_box.m_maxCoords.y()){
-		//vel -= Vector3f(m_box.getYDim() * 0.0f, 0.01f, 0.0f);
-		return false;
+		vel -= Vector3f(m_box.getYDim() * 0.0f, 0.01f, 0.0f);
+		//return false;
 	}
 	// test z bounds
 	if(pos.z() < m_box.m_minCoords.z()){
-		//vel += Vector3f(m_box.getZDim() * 0.0f, 0.0f, 0.01f);
-		return false;
+		vel += Vector3f(m_box.getZDim() * 0.0f, 0.0f, 0.01f);
+		//return false;
 	}
 	else if(pos.z() > m_box.m_maxCoords.z()){
-		//vel -= Vector3f(m_box.getZDim() * 0.0f, 0.0f, 0.01f);
-		return false;
+		vel -= Vector3f(m_box.getZDim() * 0.0f, 0.0f, 0.01f);
+		//return false;
 	}
-	//return vel;
-	return true;
+	return vel;
+	//return true;
 }
 
 
 Vector3f BoidSystem::stepSystem(){
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		vector<Vector3f> vels;
+		getAvoidanceOffset(i);
 		//vels.push_back(stayInBounds(i));
-		if(inBounds(i)){
+		//if(inBounds(i)){
 			vels.push_back(moveTowardCenterOfMass(i));
-			vels.push_back(getAvoidanceOffset(i));
+			if(m_mahBoids[i].m_avoidance_decay_counter > 0){
+				vels.push_back(m_mahBoids[i].m_avoidanceVec*0.1f*m_mahBoids[i].m_avoidance_decay_counter);
+				m_mahBoids[i].m_avoidance_decay_counter -=1;
+			}
 			vels.push_back(getAverageVelocity(i));
-			vels.push_back(defaultWind);
-		}
+			vels.push_back(m_box.getForceAtPoint(m_mahBoids[i].m_position));//defaultWind);
+			vels.push_back(inBounds(i));
+		//}
 		m_mahBoids[i].move(vels);
 		m_mahBoids[i].stepSystem();
 	}
 }
 
+vector<int> BoidSystem::getNearestNeighbors(int b){
+	// vector<int> neighbors;
+	// for(int i = 0; i < m_mahBoids.size(); i++){
+	// 	if(i != b && getDist(m_mahBoids[b].m_position, m_mahBoids[i].m_position) < m_box.getXDim() * 0.05f){
+	// 		neighbors.push_back(i);
+	// 	}
+	// }
+	vector<int> neighbors;
+	float furthest_close = 0.0f;
+	int furthest_close_boid = -1;
+	vector<float> dists;
+	for(int i = 0; i < m_mahBoids.size(); i++){
+		float dist = getDist(m_mahBoids[b].m_position, m_mahBoids[i].m_position);
+		// if there are less than five neighbors, just add this boid
+		if(neighbors.size() < 8){
+			neighbors.push_back(i);
+			dists.push_back(dist);
+			if(dist > furthest_close){
+				furthest_close = dist;
+				furthest_close_boid = i;
+			}
+		}
+		//otherwise check that it is closer than the furthest neighbor
+		else if(i != b && dist < furthest_close){
+			//cout << "furthest_close is " << furthest_close << " and dist is " << dist << endl;
+			//cout << "size is "<<neighbors.size() <<endl;
+			furthest_close = 0.0f;
+			int new_furthest_close_boid = -1;
+			float new_furthest_close = 0.0f;
+			for(int j = 0; j < neighbors.size(); j++){
+				//cout << "should delete "<< furthest_close_boid <<endl; 
+				//cout << "this loops is "<< neighbors[j] << endl;
+				if(neighbors[j]==furthest_close_boid){
+					//cout << "deleting" <<endl;
+					//cout << "size of dist before erase " << dists.size() <<endl;
+					dists.erase(dists.begin() + j);
+					neighbors.erase(neighbors.begin() + j);
+					//cout << "size of dist after erase " << dists.size() <<endl;
+				}
+				else if(dists[j] > new_furthest_close){
+					//set the current new furthest close boid
+					new_furthest_close_boid = neighbors[j];
+					//set the current new furthest close dist
+					new_furthest_close = dists[j];
+				}
+			}
+			if(dist > new_furthest_close){
+				new_furthest_close = dist;
+				new_furthest_close_boid = i;
+			}
+			furthest_close = new_furthest_close;
+			furthest_close_boid = new_furthest_close_boid;
+			dists.push_back(dist);
+			neighbors.push_back(i);
+		}
+	}
+
+	cout << b << " has " << neighbors.size() << " neighbors. They are " <<endl;
+	for(int i = 0; i < neighbors.size(); i++) {
+		cout << neighbors[i] <<endl;
+	}
+	return neighbors;
+}
+
 float BoidSystem::getDist(Vector3f p1, Vector3f p2){
-	return sqrt(pow(p1.x()-p2.x(), 2.0f) + pow(p1.y()-p2.y(), 2.0f) + pow(p1.z()-p2.z(), 2.0f));
+	return abs(sqrt(pow(p1.x()-p2.x(), 2.0f) + pow(p1.y()-p2.y(), 2.0f) + pow(p1.z()-p2.z(), 2.0f)));
 }
 
 void BoidSystem::draw(){

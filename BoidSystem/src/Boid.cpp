@@ -21,8 +21,8 @@ void Boid::stepSystem(){
 void Boid::draw(){
 	glPushMatrix();
 	glTranslatef(m_position.x(), m_position.y(), m_position.z());
-	//glutSolidSphere(0.075f, 10.0f, 10.0f);
-	cloth->draw();
+	glutSolidSphere(0.075f, 10.0f, 10.0f);
+	//cloth->draw();
 	glPopMatrix();
 }
 

@@ -29,15 +29,18 @@ public:
 	// getter method for center of mass
 	Vector3f getCenterOfMass();
 	Vector3f getCenterOfMassMinusB(int b);
+	Vector3f getCenterOfMassOfBoids(vector<int> neighbors);
 	Vector3f moveTowardCenterOfMass(int b);
 	Vector3f moveAwayFromForceSphere(int b);
 	Vector3f moveTowardsGoalPoint(int b);
-	Vector3f getAvoidanceOffset(int b);
+	void getAvoidanceOffset(int b);
 	Vector3f getAverageVelocity(int b);
-	bool inBounds(int b);
+	Vector3f inBounds(int b);
 	Vector3f stepSystem();
 
-	float getDist(Vector3f p1, Vector3f p2);
+	vector<int> getNearestNeighbors(int b);
+
+	static float getDist(Vector3f p1, Vector3f p2);
 	
 	void draw();
 	

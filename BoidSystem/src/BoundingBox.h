@@ -22,9 +22,12 @@ public:
 	// returns the center coordinate of the bounding box
 	Vector3f getCenter();
 
+	Vector3f getForceAtPoint(Vector3f pos);
+
 	float getXDim();
 	float getYDim();
 	float getZDim();
+	float getDist(Vector3f p1, Vector3f p2);
 	// TODO: decide where to put camera
 
 //protected:
