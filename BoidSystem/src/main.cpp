@@ -148,6 +148,7 @@ namespace
     //  Called when mouse button is pressed.
     void mouseFunc(int button, int state, int x, int y)
     {
+    	cout << x << " " << y << endl;
     	int key = glutGetModifiers();
     	cout <<key << endl<< GLUT_ACTIVE_CTRL<< endl<< endl;
         if (state == GLUT_DOWN)
@@ -285,8 +286,12 @@ namespace
 
     void timerFunc(int t)
     {
+    	Vector3f before = boidSys->getCenterOfMass();
         stepSystem();
-
+        Matrix4f m = camera.projectionMatrix()*camera.viewMatrix();
+        //m.inverse();
+		//Vector4f moved = m*Vector4f((boidSys->getCenterOfMass()-before), 0.0f);
+		//camera.PlaneTranslation((int) moved.x(), (int) moved.y());
         glutPostRedisplay();
 
         glutTimerFunc(t, &timerFunc, t);

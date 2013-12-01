@@ -54,6 +54,7 @@ public:
     //Get the vectors that describe the closest xyz plane
     Vector3f getNearestUp();
     Vector3f getNearestHorizontal();
+    void PlaneTranslation(int x, int y);
     
 private:
 
@@ -77,7 +78,7 @@ private:
     float   mCurrentDistance;
 
     void ArcBallRotation(int x, int y);
-    void PlaneTranslation(int x, int y);
+    
     void DistanceZoom(int x, int y);
     
     //Describe closest xyz plane
