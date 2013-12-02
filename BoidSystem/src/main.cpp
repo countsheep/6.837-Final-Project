@@ -87,6 +87,8 @@ namespace
         
     // This is the camera
     Camera camera;
+    Vector3f f;
+    bool drawF = false;
 
     // These are state variables for the UI
     bool g_mousePressed = false;
@@ -162,6 +164,12 @@ namespace
                 	camera.MouseClick(Camera::LEFT, x, y);
                 }
                 else{
+                	if (drawF == false){
+                	Vector3f force = camera.Camera::getForcePoint(boidSys->getCenterOfMass(), x, y);
+                	f = force;
+                	}
+                	drawF = true;
+                	f.print();
                 	
                 }
                 break;
@@ -178,6 +186,7 @@ namespace
         {
             camera.MouseRelease(x,y);
             g_mousePressed = false;
+            drawF = false;
         }
         glutPostRedisplay();
     }
@@ -246,6 +255,12 @@ namespace
         // THIS IS WHERE THE DRAW CODE GOES.
 
         drawSystem();
+        if (drawF){
+			glPushMatrix();
+			glTranslatef(f.x(), f.y(), f.z());
+			glutSolidSphere(0.075f, 10.0f, 10.0f);
+			glPopMatrix();
+		}
 
         // This draws the coordinate axes when you're rotating, to
         // keep yourself oriented.
@@ -275,7 +290,7 @@ namespace
 
             glEnd();
             glPopMatrix();
-
+            
             glPopAttrib();
             glPopMatrix();
         }

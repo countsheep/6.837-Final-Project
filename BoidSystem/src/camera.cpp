@@ -12,6 +12,8 @@ Camera::Camera()
     mCurrentRot = Matrix4f::identity();
     plane_up = Vector3f(0.0f, 1.0f, 0.0f);
     plane_horizontal = Vector3f(1.0f, 0.0f, 0.0f);
+    norm = Vector3f(0.0f, 0.0f, 1.0f);
+    d = 0.0f;
     
 }
 
@@ -267,6 +269,35 @@ Vector3f Camera::getNearestUp(){
 
 Vector3f Camera::getNearestHorizontal(){
 	return plane_horizontal;
+}
+
+Vector3f Camera::getForcePoint(Vector3f center, int x, int y){
+	Matrix4f current_view = viewMatrix();
+	Vector3f direction = current_view.getCol(2).xyz();
+	norm = -1.0f*direction.normalized();
+	d = -1.0f*(Vector3f::dot(norm, center));
+	cout << "d is " << d << endl << "center is " ;
+	center.print();
+	
+	//current_view.getCol(3).xyz().print();
+	//cout << mViewport[3]<< endl;
+	float w_half = mDimensions[0]/2.0f;
+	float h_half =  mDimensions[1]/2.0f;
+	float cx = (x - w_half);
+    float cy = (-y + h_half);
+
+	Matrix4f invProj = projectionMatrix();
+	invProj.inverse();
+	
+	// compute "distance" of image plane (wrt projection matrix)
+    float dis = float(mViewport[3])/2.0f / tan(mPerspective[0]*M_PI / 180.0f / 2.0f);
+    cout << x << " " << y <<endl;
+    cout << cx << " " << cy << " " << dis << endl;
+    Vector3f r = Vector3f(cx, cy, dis)/dis;
+	Matrix4f trans = Matrix4f(current_view.getCol(0), current_view.getCol(1), current_view.getCol(2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+	Vector3f dir = (trans*Vector4f(r, 0.0f)).xyz().normalized();
+	float t = -1.0f*(d+Vector3f::dot(norm, current_view.getCol(3).xyz()))/Vector3f::dot(norm, dir);
+	return t*dir+current_view.getCol(3).xyz();
 }
 
 void Camera::setPlane(){

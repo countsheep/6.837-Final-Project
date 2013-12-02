@@ -55,6 +55,9 @@ public:
     Vector3f getNearestUp();
     Vector3f getNearestHorizontal();
     void PlaneTranslation(int x, int y);
+    Vector3f getNorm() const {return norm;}
+    float getD() const {return d;}    
+    Vector3f getForcePoint(Vector3f center, int x, int y);
     
 private:
 
@@ -85,6 +88,9 @@ private:
     void setPlane();
     Vector3f plane_up;
     Vector3f plane_horizontal;
+    
+    Vector3f norm;
+    float d;
 };
 
 #endif
