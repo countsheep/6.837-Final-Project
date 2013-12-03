@@ -5,55 +5,6 @@
 
 #include "Image.h"
 
-
-// bitmap header
-struct BITMAPFILEHEADER
-{
-    unsigned short bfType; // file type
-    unsigned int bfSize; // size in bytes of bmp
-    unsigned short bfReserved1; // still don't fully understand this
-    unsigned short bfReserved2; // or this...
-    unsigned int bfOffBits; // or this... depends on color palette?
-};
-
-// bitmap information specific to image data
-struct BITMAPINFOHEADER
-{
-    unsigned int biSize; // number of bytes required by InfoHeader
-    int biWidth; // width in pixels
-    int biHeight; // height in pixels
-    unsigned short biPlanes; // number of color (bit) planes (?)
-    unsigned short biBitCount; // number of bits per pixel
-    unsigned int biCompression; // type of compression
-    unsigned int biSizeImage; // size of image in bytes
-    int biXPixelsPerMeter; // pixels per meter in x axis
-    int biYPixelsPerMeter; // pixels per meter in y axis
-    unsigned int biColorsUsed; // number of colors used by the bitmap
-    unsigned int biColorsImportant; // number of colors that are important
-};
-
-#pragma pack(2)
-struct BMPHeader
-{
-    char bfType[3];       /* "BM" */
-    int bfSize;           /* Size of file in bytes */
-    int bfReserved;       /* set to 0 */
-    int bfOffBits;        /* Byte offset to actual bitmap data (= 54) */
-    int biSize;           /* Size of BITMAPINFOHEADER, in bytes (= 40) */
-    int biWidth;          /* Width of image, in pixels */
-    int biHeight;         /* Height of images, in pixels */
-    short biPlanes;       /* Number of planes in target device (set to 1) */
-    short biBitCount;     /* Bits per pixel (24 in this case) */
-    int biCompression;    /* Type of compression (0 if no compression) */
-    int biSizeImage;      /* Image size, in bytes (0 if no compression) */
-    int biXPelsPerMeter;  /* Resolution in pixels/meter of display device */
-    int biYPelsPerMeter;  /* Resolution in pixels/meter of display device */
-    int biClrUsed;        /* Number of colors in the color table (if 0, use 
-                          maximum allowed by biBitCount) */
-    int biClrImportant;   /* Number of important colors.  If 0, all colors 
-                          are important */
-};
-
 // some helper functions for save & load
 
 unsigned char ReadByte( FILE* file)
@@ -167,42 +118,16 @@ Image* Image::LoadTGA(const char *filename) {
 // got help from stackoverflow, question 9296059
 Image* Image::readBMP(const char* filename)
 {
-    //std::cout << filename << std::endl;
     assert(filename != NULL);
     int i;
-    //std::cout << "made assertion" <<std::endl;
     FILE* f = fopen(filename, "rb");
-    //std::cout << "opened file" <<std::endl;
     unsigned char header[54]; 
-    //std::cout << sizeof(header)<< std::endl;
-    //unsigned char info[sizeof(BITMAPINFOHEADER)];
     fread(header, sizeof(unsigned char), 54, f); //reading the FILEHEADER
-    //fread(info, sizeof(BITMAPINFOHEADER), 1, file);
-    //std::cout << "finished reading header" <<std::endl;
     // extract image height and width from header
     int width = *(int*)&header[18];
     int height = *(int*)&header[22];
-    //std::cout << "width " << width << std::endl; 
-    //std::cout << "height " << height << std::endl; 
 
     Image *answer = new Image(width,height);
-    //std::cout << "got here" << std::endl;
-    
-    // int size = 3 * width * height;
-    // unsigned char* data = new unsigned char[size]; // allocate 3 bytes per pixel
-    // fread(data, sizeof(unsigned char), size, f); // read the rest of the data at once
-    // fclose(f);
-    // std::cout << "got to checkpoint 2" << std::endl;
-    // for(i = 0; i < size; i += 3)
-    // {
-    //     int j = i/3;
-    //     std::cout << "x " << j % width << std::endl;
-    //     std::cout << "y " << j / width << std::endl;
-    //     Vector3f(data[i+2], data[i+1], data[i]).print();
-    //     answer->SetPixel(j % width, j/width, Vector3f(data[i+2], data[i+1], data[i])/255.0f);
-    // }
-
-
     int row_padded = (width*3 + 3) & (~3);
     unsigned char* data = new unsigned char[row_padded];
     unsigned char tmp;
@@ -214,12 +139,9 @@ Image* Image::readBMP(const char* filename)
         {
             // Convert (B, G, R) to (R, G, B)
             answer->SetPixel(j / 3, i, Vector3f(((float)data[j+2])/255.0f, ((float)data[j+1])/255.0f, ((float)data[j])/255.0f));
-            //std::cout << "x " << j/3 << "y " << i << std::endl;
-            //std::cout << "R: "<< (int)data[j+2] << " G: " << (int)data[j+1]<< " B: " << (int)data[j]<< std::endl;
         }
     }
     fclose(f);
-    //std::cout << "done" << std::endl;
     answer->SaveImage("output500.bmp");
     return answer;
 }
@@ -329,6 +251,26 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ****************************************************************************/
+struct BMPHeader
+{
+    char bfType[3];       /* "BM" */
+    int bfSize;           /* Size of file in bytes */
+    int bfReserved;       /* set to 0 */
+    int bfOffBits;        /* Byte offset to actual bitmap data (= 54) */
+    int biSize;           /* Size of BITMAPINFOHEADER, in bytes (= 40) */
+    int biWidth;          /* Width of image, in pixels */
+    int biHeight;         /* Height of images, in pixels */
+    short biPlanes;       /* Number of planes in target device (set to 1) */
+    short biBitCount;     /* Bits per pixel (24 in this case) */
+    int biCompression;    /* Type of compression (0 if no compression) */
+    int biSizeImage;      /* Image size, in bytes (0 if no compression) */
+    int biXPelsPerMeter;  /* Resolution in pixels/meter of display device */
+    int biYPelsPerMeter;  /* Resolution in pixels/meter of display device */
+    int biClrUsed;        /* Number of colors in the color table (if 0, use 
+                          maximum allowed by biBitCount) */
+    int biClrImportant;   /* Number of important colors.  If 0, all colors 
+                          are important */
+};
 
 int 
     Image::SaveBMP(const char *filename)

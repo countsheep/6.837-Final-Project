@@ -8,6 +8,7 @@
 #include "BoidSystem.h"
 #include "Boid.h"
 #include "BoundingBox.h"
+#include "BoidController.h"
 
 #include "extra.h"
 #include "camera.h"
@@ -30,7 +31,8 @@ namespace
     ParticleSystem *system2;
     PendulumSystem *system3;
     TimeStepper * timeStepper;
-    BoidSystem* boidSys;
+    //BoidSystem* boidSys;
+    BoidController* boidController;
     float h = 0.02f;
 
   // initialize your particle systems
@@ -46,7 +48,8 @@ namespace
     char *input_file = argv[1];
     // char *output_file = argv[2];
     Image *img = Image::readBMP(input_file);
-    boidSys = new BoidSystem(box, img);
+    //boidSys = new BoidSystem(box, img);
+    boidController = new BoidController(img, Vector3f(-7.0f, -7.0f, -7.0f), Vector3f(7.0f, 7.0f, 7.0f));
   }
 
   // Take a step forward for the particle shower
@@ -61,7 +64,8 @@ namespace
     //   timeStepper->takeStep(system2, h);
     //   timeStepper->takeStep(system3, h);
     // }
-    boidSys->stepSystem();
+    //boidSys->stepSystem();
+    boidController->stepSystem();
   }
 
   // Draw the current particle positions
@@ -86,7 +90,7 @@ namespace
     glScaled(50.0f,0.01f,50.0f);
     glutSolidCube(1);
     glPopMatrix();*/
-    boidSys->draw();
+    boidController->draw();
     
   }
         
@@ -173,14 +177,14 @@ namespace
                 	camera.MouseClick(Camera::LEFT, x, y);
                 }
                 else{
-                	if (drawF == false){
-                	Vector3f force = camera.Camera::getForcePoint(boidSys->getCenterOfMass(), x, y);
-                	f = force;
-                	}
-                	drawF = true;
-                	cout <<"force at ";
-                	f.print();
-                	cout << endl;
+                	//if (drawF == false){
+                	//Vector3f force = camera.Camera::getForcePoint(boidSys->getCenterOfMass(), x, y);
+                	// f = force;
+                	// }
+                	// drawF = true;
+                	// cout <<"force at ";
+                	// f.print();
+                	// cout << endl;
                 	
                 }
                 break;
@@ -312,7 +316,7 @@ namespace
 
     void timerFunc(int t)
     {
-    	Vector3f before = boidSys->getCenterOfMass();
+    	//Vector3f before = boidSys->getCenterOfMass();
         stepSystem();
         Matrix4f m = camera.projectionMatrix()*camera.viewMatrix();
         //m.inverse();

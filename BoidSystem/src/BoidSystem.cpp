@@ -29,6 +29,15 @@ BoidSystem::BoidSystem(BoundingBox box, Image* img):m_box(box){
 	}
 }
 
+//initialize color boid
+BoidSystem::BoidSystem(BoundingBox box, vector<Boid> boids, string main_color):m_box(box){
+	m_numParticles = boids.size();
+	m_mahBoids = boids;
+	goalPos = m_box.getCenter();
+	m_main_color = main_color;
+	isColorBoid = true;
+}
+
 Vector3f BoidSystem::getAvgVelocity(){
 	Vector3f vel = Vector3f::ZERO;
 	for (int i = 0; i<m_mahBoids.size(); i++){
@@ -142,7 +151,7 @@ Vector3f BoidSystem::inBounds(int b){
 }
 
 
-Vector3f BoidSystem::stepSystem(){
+void BoidSystem::stepSystem(){
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		vector<Vector3f> vels;
 		getAvoidanceOffset(i);
@@ -154,7 +163,20 @@ Vector3f BoidSystem::stepSystem(){
 				m_mahBoids[i].m_avoidance_decay_counter -=1;
 			}
 			vels.push_back(getAverageVelocity(i));
-			vels.push_back(m_box.getForceAtPoint(m_mahBoids[i].m_position));//defaultWind);
+			//if color boid, swirl force around different axes
+			if(isColorBoid){
+				int axis = 0;
+				if(m_main_color == "green"){
+					axis = 1;
+				}
+				else if(m_main_color == "blue"){
+					axis = 2;
+				}
+				vels.push_back(m_box.getForceAtPoint(m_mahBoids[i].m_position, axis));
+			}
+			else{
+				vels.push_back(m_box.getForceAtPoint(m_mahBoids[i].m_position, -1));//defaultWind);
+			}
 			vels.push_back(inBounds(i));
 		//}
 		m_mahBoids[i].move(vels);

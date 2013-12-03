@@ -69,6 +69,7 @@ endif
 
 OBJECTS := \
 	$(OBJDIR)/Boid.o \
+	$(OBJDIR)/BoidController.o \
 	$(OBJDIR)/BoidSystem.o \
 	$(OBJDIR)/BoundingBox.o \
 	$(OBJDIR)/camera.o \
@@ -139,6 +140,10 @@ $(GCH): $(PCH)
 endif
 
 $(OBJDIR)/Boid.o: src/Boid.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/BoidController.o: src/BoidController.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
