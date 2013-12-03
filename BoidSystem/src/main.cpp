@@ -16,6 +16,7 @@
 #include "simpleSystem.h"
 #include "pendulumSystem.h"
 #include "ClothSystem.h"
+#include "Force.h"
 
 using namespace std;
 
@@ -29,6 +30,7 @@ namespace
     TimeStepper * timeStepper;
     BoidSystem* boidSys;
     float h = 0.02f;
+    vector<Force> forces;
 
   // initialize your particle systems
   ///TODO: read argv here. set timestepper , step size etc
@@ -172,6 +174,7 @@ namespace
                 	cout <<"force at ";
                 	f.print();
                 	cout << endl;
+                	forces.push_back(Force(f, 40, 0.01f));
                 	
                 }
                 break;

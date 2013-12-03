@@ -75,7 +75,9 @@ OBJECTS := \
 	$(OBJDIR)/Boid.o \
 	$(OBJDIR)/BoundingBox.o \
 	$(OBJDIR)/particleSystem.o \
+	$(OBJDIR)/Image.o \
 	$(OBJDIR)/BoidSystem.o \
+	$(OBJDIR)/Force.o \
 	$(OBJDIR)/TimeStepper.o \
 	$(OBJDIR)/ClothSystem.o \
 
@@ -159,7 +161,13 @@ $(OBJDIR)/BoundingBox.o: src/BoundingBox.cpp
 $(OBJDIR)/particleSystem.o: src/particleSystem.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/Image.o: src/Image.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/BoidSystem.o: src/BoidSystem.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/Force.o: src/Force.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/TimeStepper.o: src/TimeStepper.cpp
