@@ -16,6 +16,19 @@ BoidSystem::BoidSystem(int numParticles, BoundingBox box):m_box(box){
 	}
 }
 
+BoidSystem::BoidSystem(BoundingBox box, Image* img):m_box(box){
+	m_numParticles = img->Width() * img->Height();
+	for (int i = 0; i < img->Width(); i++){
+		for( int j = 0; j < img->Height(); j++){
+			Vector3f pos = Vector3f(0.075f*i, 0.075f*j, 0.0f);
+			Boid b = Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
+			b.m_color = img->GetPixel(i, j);
+			m_mahBoids.push_back(b);
+			goalPos = m_box.getCenter();
+		}
+	}
+}
+
 Vector3f BoidSystem::getAvgVelocity(){
 	Vector3f vel = Vector3f::ZERO;
 	for (int i = 0; i<m_mahBoids.size(); i++){
@@ -206,10 +219,6 @@ vector<int> BoidSystem::getNearestNeighbors(int b){
 		}
 	}
 
-	/*cout << b << " has " << neighbors.size() << " neighbors. They are " <<endl;
-	for(int i = 0; i < neighbors.size(); i++) {
-		cout << neighbors[i] <<endl;
-	}*/
 	return neighbors;
 }
 

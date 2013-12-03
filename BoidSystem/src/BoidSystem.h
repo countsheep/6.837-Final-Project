@@ -5,6 +5,7 @@
 #include <vecmath.h>
 #include "BoundingBox.h"
 #include "Boid.h"
+#include "Image.h"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ class BoidSystem
 public:
 
 	BoidSystem(int numParticles, BoundingBox box);
+	BoidSystem(BoundingBox box, Image* img);
 
 	int m_numParticles;
 	vector<Boid> m_mahBoids;

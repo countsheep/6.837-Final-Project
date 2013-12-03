@@ -7,16 +7,16 @@ ifndef verbose
   SILENT = @
 endif
 
-ifndef CC
-  CC = gcc
-endif
+CC = gcc
+CXX = g++
+AR = ar
 
-ifndef CXX
-  CXX = g++
-endif
-
-ifndef AR
-  AR = ar
+ifndef RESCOMP
+  ifdef WINDRES
+    RESCOMP = $(WINDRES)
+  else
+    RESCOMP = windres
+  endif
 endif
 
 ifeq ($(config),debug)
@@ -25,13 +25,13 @@ ifeq ($(config),debug)
   TARGET     = $(TARGETDIR)/libvecmath.a
   DEFINES   += -DDebug
   INCLUDES  += -Iinclude
-  CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -std=c++0x
-  CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += 
-  LIBS      += 
-  RESFLAGS  += $(DEFINES) $(INCLUDES) 
-  LDDEPS    += 
+  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -g -std=c++0x
+  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
+  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
+  ALL_LDFLAGS   += $(LDFLAGS)
+  LDDEPS    +=
+  LIBS      += $(LDDEPS)
   LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -47,13 +47,13 @@ ifeq ($(config),release)
   TARGET     = $(TARGETDIR)/libvecmath.a
   DEFINES   += -DNDebug
   INCLUDES  += -Iinclude
-  CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -O2 -std=c++0x
-  CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -s
-  LIBS      += 
-  RESFLAGS  += $(DEFINES) $(INCLUDES) 
-  LDDEPS    += 
+  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2 -std=c++0x
+  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
+  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
+  ALL_LDFLAGS   += $(LDFLAGS) -s
+  LDDEPS    +=
+  LIBS      += $(LDDEPS)
   LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -65,12 +65,12 @@ endif
 
 OBJECTS := \
 	$(OBJDIR)/Matrix2f.o \
-	$(OBJDIR)/Vector3f.o \
-	$(OBJDIR)/Vector2f.o \
-	$(OBJDIR)/Vector4f.o \
-	$(OBJDIR)/Quat4f.o \
-	$(OBJDIR)/Matrix4f.o \
 	$(OBJDIR)/Matrix3f.o \
+	$(OBJDIR)/Matrix4f.o \
+	$(OBJDIR)/Quat4f.o \
+	$(OBJDIR)/Vector2f.o \
+	$(OBJDIR)/Vector3f.o \
+	$(OBJDIR)/Vector4f.o \
 
 RESOURCES := \
 
@@ -127,30 +127,38 @@ prelink:
 ifneq (,$(PCH))
 $(GCH): $(PCH)
 	@echo $(notdir $<)
-	-$(SILENT) cp $< $(OBJDIR)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) -x c++-header $(ALL_CXXFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
 $(OBJDIR)/Matrix2f.o: src/Matrix2f.cpp
 	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Vector3f.o: src/Vector3f.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Vector2f.o: src/Vector2f.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Vector4f.o: src/Vector4f.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Quat4f.o: src/Quat4f.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Matrix4f.o: src/Matrix4f.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
 $(OBJDIR)/Matrix3f.o: src/Matrix3f.cpp
 	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/Matrix4f.o: src/Matrix4f.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/Quat4f.o: src/Quat4f.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/Vector2f.o: src/Vector2f.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/Vector3f.o: src/Vector3f.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/Vector4f.o: src/Vector4f.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
 -include $(OBJECTS:%.o=%.d)
+ifneq (,$(PCH))
+  -include $(OBJDIR)/$(notdir $(PCH)).d
+endif

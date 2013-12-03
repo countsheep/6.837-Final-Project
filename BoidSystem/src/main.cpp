@@ -1,8 +1,10 @@
 #include <cmath>
 #include <cstdlib>
+#include <cstdio>
 #include <ctime>
 #include <iostream>
 #include <vector>
+#include <string.h>
 #include "BoidSystem.h"
 #include "Boid.h"
 #include "BoundingBox.h"
@@ -16,6 +18,7 @@
 #include "simpleSystem.h"
 #include "pendulumSystem.h"
 #include "ClothSystem.h"
+#include "Image.h"
 
 using namespace std;
 
@@ -37,7 +40,13 @@ namespace
     // seed random number generator
     srand(time (0));
     BoundingBox box = BoundingBox(Vector3f(-7.0f, -7.0f, -7.0f), Vector3f(7.0f, 7.0f, 7.0f));
-    boidSys = new BoidSystem(25, box);
+    //boidSys = new BoidSystem(25, box);
+    //check if image command prompt thing is given 
+    //then make an image boid
+    char *input_file = argv[1];
+    // char *output_file = argv[2];
+    Image *img = Image::readBMP(input_file);
+    boidSys = new BoidSystem(box, img);
   }
 
   // Take a step forward for the particle shower
@@ -324,6 +333,21 @@ namespace
 // Set up OpenGL, define the callbacks and start the main loop
 int main( int argc, char* argv[] )
 {
+    //test image read/write
+    // char *input_file = argv[1];
+
+    // char *output_file = argv[2];
+    // Image *img = Image::readBMP(input_file);
+    // Image img_out( img->Width() , img->Height() );
+
+    // for(int i = 0; i < img->Width(); i++){
+    //     for(int j = 0; j < img->Height(); j++){
+    //         img_out.SetPixel(i, j, img->GetPixel(i, j));
+    //     }
+    // }
+    // img_out.SaveImage(output_file);
+
+    //setup opengl
     glutInit( &argc, argv );
 
     // We're going to animate it, so double buffer 
