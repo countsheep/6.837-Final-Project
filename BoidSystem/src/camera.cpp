@@ -276,28 +276,32 @@ Vector3f Camera::getForcePoint(Vector3f center, int x, int y){
 	Vector3f direction = current_view.getCol(2).xyz();
 	norm = -1.0f*direction.normalized();
 	d = -1.0f*(Vector3f::dot(norm, center));
-	cout << "d is " << d << endl << "center is " ;
-	center.print();
 	
-	//current_view.getCol(3).xyz().print();
-	//cout << mViewport[3]<< endl;
-	float w_half = mDimensions[0]/2.0f;
-	float h_half =  mDimensions[1]/2.0f;
-	float cx = (x - w_half);
-    float cy = (-y + h_half);
+	GLint viewport[4];
+	GLdouble modelMatrix[16];
+	GLdouble projectionMatrix[16];
 
-	Matrix4f invProj = projectionMatrix();
-	invProj.inverse();
-	
-	// compute "distance" of image plane (wrt projection matrix)
-    float dis = float(mViewport[3])/2.0f / tan(mPerspective[0]*M_PI / 180.0f / 2.0f);
-    cout << x << " " << y <<endl;
-    cout << cx << " " << cy << " " << dis << endl;
-    Vector3f r = Vector3f(cx, cy, dis)/dis;
-	Matrix4f trans = Matrix4f(current_view.getCol(0), current_view.getCol(1), current_view.getCol(2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-	Vector3f dir = (trans*Vector4f(r, 0.0f)).xyz().normalized();
-	float t = -1.0f*(d+Vector3f::dot(norm, current_view.getCol(3).xyz()))/Vector3f::dot(norm, dir);
-	return t*dir+current_view.getCol(3).xyz();
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelMatrix);
+	glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
+
+	GLfloat winY = GLfloat(viewport[3] - y);
+
+	double x1, y1, z1;
+	gluUnProject( (double) x, winY, 0.0f, // Near
+		          modelMatrix, projectionMatrix, viewport,
+		          &x1, &y1, &z1 );
+	Vector3f origin = Vector3f(x1, y1, z1);
+
+	gluUnProject( (double) x, winY, 1.0f, // Far
+		          modelMatrix, projectionMatrix, viewport,
+		      &x1, &y1, &z1 );
+	Vector3f ray = Vector3f(x1, y1, z1).normalized();
+	origin.print();
+	ray.print();
+	float t = -1.0f*(d+Vector3f::dot(origin, norm))/Vector3f::dot(ray, norm);
+	return (t*ray+origin);
+
 }
 
 void Camera::setPlane(){

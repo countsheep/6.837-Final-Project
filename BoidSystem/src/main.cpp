@@ -150,9 +150,9 @@ namespace
     //  Called when mouse button is pressed.
     void mouseFunc(int button, int state, int x, int y)
     {
-    	cout << x << " " << y << endl;
+    	//cout << x << " " << y << endl;
     	int key = glutGetModifiers();
-    	cout <<key << endl<< GLUT_ACTIVE_CTRL<< endl<< endl;
+    	//cout <<key << endl<< GLUT_ACTIVE_CTRL<< endl<< endl;
         if (state == GLUT_DOWN)
         {
             g_mousePressed = true;
@@ -169,7 +169,9 @@ namespace
                 	f = force;
                 	}
                 	drawF = true;
+                	cout <<"force at ";
                 	f.print();
+                	cout << endl;
                 	
                 }
                 break;

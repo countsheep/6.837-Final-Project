@@ -93,15 +93,10 @@ Vector3f BoidSystem::getAverageVelocity(int b){
 Vector3f BoidSystem::inBounds(int b){
 	Vector3f vel = Vector3f::ZERO;
 	Vector3f pos = m_mahBoids[b].m_position;
-<<<<<<< HEAD
-	//cout << "Size of bounding box " << endl;
-	//m_box.m_minCoords.print();
-	//m_box.m_maxCoords.print();
-=======
 	/*cout << "Size of bounding box " << endl;
 	m_box.m_minCoords.print();
 	m_box.m_maxCoords.print();*/
->>>>>>> working on click detection
+
 	// test x bounds
 	if(pos.x() < m_box.m_minCoords.x()){
 		vel += Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
@@ -211,10 +206,10 @@ vector<int> BoidSystem::getNearestNeighbors(int b){
 		}
 	}
 
-	cout << b << " has " << neighbors.size() << " neighbors. They are " <<endl;
+	/*cout << b << " has " << neighbors.size() << " neighbors. They are " <<endl;
 	for(int i = 0; i < neighbors.size(); i++) {
 		cout << neighbors[i] <<endl;
-	}
+	}*/
 	return neighbors;
 }
 
