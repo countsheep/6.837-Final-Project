@@ -167,26 +167,26 @@ Image* Image::LoadTGA(const char *filename) {
 // got help from stackoverflow, question 9296059
 Image* Image::readBMP(const char* filename)
 {
-    std::cout << filename << std::endl;
+    //std::cout << filename << std::endl;
     assert(filename != NULL);
     int i;
-    std::cout << "made assertion" <<std::endl;
+    //std::cout << "made assertion" <<std::endl;
     FILE* f = fopen(filename, "rb");
-    std::cout << "opened file" <<std::endl;
+    //std::cout << "opened file" <<std::endl;
     unsigned char header[54]; 
-    std::cout << sizeof(header)<< std::endl;
+    //std::cout << sizeof(header)<< std::endl;
     //unsigned char info[sizeof(BITMAPINFOHEADER)];
     fread(header, sizeof(unsigned char), 54, f); //reading the FILEHEADER
     //fread(info, sizeof(BITMAPINFOHEADER), 1, file);
-    std::cout << "finished reading header" <<std::endl;
+    //std::cout << "finished reading header" <<std::endl;
     // extract image height and width from header
     int width = *(int*)&header[18];
     int height = *(int*)&header[22];
-    std::cout << "width " << width << std::endl; 
-    std::cout << "height " << height << std::endl; 
+    //std::cout << "width " << width << std::endl; 
+    //std::cout << "height " << height << std::endl; 
 
     Image *answer = new Image(width,height);
-    std::cout << "got here" << std::endl;
+    //std::cout << "got here" << std::endl;
     
     // int size = 3 * width * height;
     // unsigned char* data = new unsigned char[size]; // allocate 3 bytes per pixel
@@ -214,12 +214,12 @@ Image* Image::readBMP(const char* filename)
         {
             // Convert (B, G, R) to (R, G, B)
             answer->SetPixel(j / 3, i, Vector3f(((float)data[j+2])/255.0f, ((float)data[j+1])/255.0f, ((float)data[j])/255.0f));
-            std::cout << "x " << j/3 << "y " << i << std::endl;
-            std::cout << "R: "<< (int)data[j+2] << " G: " << (int)data[j+1]<< " B: " << (int)data[j]<< std::endl;
+            //std::cout << "x " << j/3 << "y " << i << std::endl;
+            //std::cout << "R: "<< (int)data[j+2] << " G: " << (int)data[j+1]<< " B: " << (int)data[j]<< std::endl;
         }
     }
     fclose(f);
-    std::cout << "done" << std::endl;
+    //std::cout << "done" << std::endl;
     answer->SaveImage("output500.bmp");
     return answer;
 }
