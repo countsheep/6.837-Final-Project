@@ -39,6 +39,7 @@ namespace
     float h = 0.02f;
     vector<vector<Force*>> forces;
     bool drawF = false;
+    Vector3f f;
 
   // initialize your particle systems
   ///TODO: read argv here. set timestepper , step size etc
@@ -89,9 +90,9 @@ namespace
     	}
     }
     if (drawF){
-    	Force* f = forces.back().back();
-    	if (f->getAge()%20==0){
-    		Force *fp = new Force(f->getCenter(), 55, 0.03f);
+    	Force* f1 = forces.back().back();
+    	if (f1->getAge()%20==0){
+    		Force *fp = new Force(f, 55, 0.03f);
     		forces.back().push_back(fp);
     	}
     }
@@ -131,7 +132,7 @@ namespace
         
     // This is the camera
     Camera camera;
-    Vector3f f;
+    
     
 
     // These are state variables for the UI
@@ -219,8 +220,8 @@ namespace
 		            	f = force;
                 	}
                 	drawF = true;
-                	cout <<"force at ";
-                	f.print();
+                	//cout <<"force at ";
+                	//f.print();
                 	cout << endl;
                 	vector<Force*> fv;
                 	Force *fp = new Force(f, 55, 0.03f);
@@ -250,7 +251,14 @@ namespace
     // Called when mouse is moved while button pressed.
     void motionFunc(int x, int y)
     {
-        camera.MouseDrag(x,y);        
+        camera.MouseDrag(x,y);
+        Vector3f center = Vector3f::ZERO;
+		for (int i = 0; i < boidController -> m_systems.size();i++){
+			center = center + boidController -> m_systems[i].getCenterOfMass();
+		}
+		center = center/boidController -> m_systems.size();
+    	Vector3f force = camera.Camera::getForcePoint(center, x, y);
+    	f = force;       
     
         glutPostRedisplay();
     }

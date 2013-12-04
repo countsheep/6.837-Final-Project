@@ -297,8 +297,8 @@ Vector3f Camera::getForcePoint(Vector3f center, int x, int y){
 		          modelMatrix, projectionMatrix, viewport,
 		      &x1, &y1, &z1 );
 	Vector3f ray = Vector3f(x1, y1, z1).normalized();
-	origin.print();
-	ray.print();
+	//origin.print();
+	//ray.print();
 	float t = -1.0f*(d+Vector3f::dot(origin, norm))/Vector3f::dot(ray, norm);
 	return (t*ray+origin);
 
