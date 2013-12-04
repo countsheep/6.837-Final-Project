@@ -11,7 +11,7 @@ using namespace std;
 class OctTree
 {
 public:
-	OctTree(Vector3f center, Vector3f half):m_center(center), halfDim(half){}
+	OctTree(Vector3f center, Vector3f half);
 	Vector3f getDim(){return halfDim;}
 	Vector3f getCenter(){return m_center;}
 	void setOrigin();

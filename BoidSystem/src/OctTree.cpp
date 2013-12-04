@@ -46,11 +46,11 @@ void OctTree::setPoint(Boid *b){
 				
 				children[i] = new OctTree(Vector3f(nx, ny, nz), halfDim*0.5f);
 			}
-			children[getOct(savePoint -> m_position)] -> setBoid(savePoint);
-			children[getOct(point -> m_position)] -> setBoid(point);
+			children[getOct(savePoint -> m_position)] -> setPoint(savePoint);
+			children[getOct(point -> m_position)] -> setPoint(point);
 		}
 	}
-	else{children[getOct(point -> m_position)] -> setBoid(point);}
+	else{children[getOct(point -> m_position)] -> setPoint(point);}
 }
 
 

@@ -102,26 +102,6 @@ namespace
   // Draw the current particle positions
   void drawSystem()
   {
-    
-    // Base material colors (they don't change)
-    /*GLfloat particleColor[] = {0.4f, 0.7f, 1.0f, 1.0f};
-    GLfloat floorColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
-    
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, particleColor);
-    
-    glutSolidSphere(0.1f,10.0f,10.0f);
-    
-    system->draw();
-    system2->draw();
-    system3->draw();
-    
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, floorColor);
-    glPushMatrix();
-    glTranslatef(0.0f,-5.0f,0.0f);
-    glScaled(50.0f,0.01f,50.0f);
-    glutSolidCube(1);
-    glPopMatrix();*/
-    
     boidController->draw();
     
   }

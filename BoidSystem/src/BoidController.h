@@ -20,7 +20,7 @@ public:
 	vector<BoidSystem> m_systems;
 	void draw();
 	void stepSystem(vector<vector<Force*>> f);
-	
+	Image downSample(Image* img);
 };
 
 #endif

@@ -8,11 +8,12 @@ BoidController::BoidController(Image* img, Vector3f minBounds, Vector3f maxBound
 	vector<Boid*> red;
 	vector<Boid*> green;
 	vector<Boid*> blue;
-	for (int i = 0; i < img->Width(); i++){
-		for( int j = 0; j < img->Height(); j++){
-			Vector3f pos = Vector3f(0.075f*(i - img->Width()/2), 0.075f*(j - img->Height()/2), 0.0f);
-			Boid b = Boid(pos, Vector3f::ZERO, 10.0f, 0.25f);
-			b.m_color = img->GetPixel(i, j);
+	Image reduced_img = downSample(img);
+	for (int i = 0; i < reduced_img.Width(); i++){
+		for( int j = 0; j < reduced_img.Height(); j++){
+			Vector3f pos = Vector3f(0.075f*(i - reduced_img.Width()/2), 0.075f*(j - reduced_img.Height()/2), 0.0f);
+			Boid* b = new Boid(pos, Vector3f::ZERO, 10.0f, 0.25f);
+			b->m_color = reduced_img.GetPixel(i, j);
 			//choose which flock to add boid to
 			if(b->m_color.x() >= b->m_color.y() && b->m_color.x() >= b->m_color.z()){
 				red.push_back(b);
@@ -54,4 +55,24 @@ void BoidController::stepSystem(vector<vector<Force*>> f){
 	for(int i = 0; i < m_systems.size(); i++){
 		m_systems[i].stepSystem(f);
 	}
+}
+
+Image BoidController::downSample(Image* img){
+	float total_scale = (img->Width() * img->Height())/1000;
+	int scale = sqrt(total_scale);
+	Image img_out( img->Width()/scale , img->Height()/scale );
+
+	//downsampling 
+    for(int i = 0; i < img->Width()/scale; i++){
+        for(int j = 0; j < img->Height()/scale; j++){
+            Vector3f sum;
+            for(int k = 0; k < scale; k++){
+            	for(int l = 0; l < scale; l++){
+            		sum += img->GetPixel(scale * i + k, scale * j + l);
+            	}
+            }
+            img_out.SetPixel(i, j, sum/pow(scale, 2));
+        }
+    }
+	return img_out;
 }

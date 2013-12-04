@@ -142,7 +142,6 @@ Image* Image::readBMP(const char* filename)
         }
     }
     fclose(f);
-    answer->SaveImage("output500.bmp");
     return answer;
 }
 
