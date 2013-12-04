@@ -58,6 +58,7 @@ public:
     void SavePPM( const char* filename ) const; 
 
     static Image* LoadTGA( const char* filename );
+    static Image* readBMP(const char* filename);
     void SaveTGA( const char* filename ) const; 
     int SaveBMP(const char *filename);
     void SaveImage(const char *filename);

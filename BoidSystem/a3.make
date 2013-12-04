@@ -75,6 +75,7 @@ OBJECTS := \
 	$(OBJDIR)/Boid.o \
 	$(OBJDIR)/BoundingBox.o \
 	$(OBJDIR)/particleSystem.o \
+	$(OBJDIR)/BoidController.o \
 	$(OBJDIR)/Image.o \
 	$(OBJDIR)/BoidSystem.o \
 	$(OBJDIR)/Force.o \
@@ -159,6 +160,9 @@ $(OBJDIR)/BoundingBox.o: src/BoundingBox.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/particleSystem.o: src/particleSystem.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/BoidController.o: src/BoidController.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/Image.o: src/Image.cpp

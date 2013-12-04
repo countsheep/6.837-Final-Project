@@ -22,7 +22,7 @@ public:
 	// returns the center coordinate of the bounding box
 	Vector3f getCenter();
 
-	Vector3f getForceAtPoint(Vector3f pos);
+	Vector3f getForceAtPoint(Vector3f pos, int axis);
 
 	float getXDim();
 	float getYDim();

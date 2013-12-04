@@ -1,11 +1,14 @@
 #include <cmath>
 #include <cstdlib>
+#include <cstdio>
 #include <ctime>
 #include <iostream>
 #include <vector>
+#include <string.h>
 #include "BoidSystem.h"
 #include "Boid.h"
 #include "BoundingBox.h"
+#include "BoidController.h"
 
 #include "extra.h"
 #include "camera.h"
@@ -16,7 +19,9 @@
 #include "simpleSystem.h"
 #include "pendulumSystem.h"
 #include "ClothSystem.h"
+
 #include "Force.h"
+#include "Image.h"
 
 using namespace std;
 
@@ -28,7 +33,8 @@ namespace
     ParticleSystem *system2;
     PendulumSystem *system3;
     TimeStepper * timeStepper;
-    BoidSystem* boidSys;
+    //BoidSystem* boidSys;
+    BoidController* boidController;
     float h = 0.02f;
     vector<Force> forces;
 
@@ -39,7 +45,14 @@ namespace
     // seed random number generator
     srand(time (0));
     BoundingBox box = BoundingBox(Vector3f(-7.0f, -7.0f, -7.0f), Vector3f(7.0f, 7.0f, 7.0f));
-    boidSys = new BoidSystem(25, box);
+    //boidSys = new BoidSystem(25, box);
+    //check if image command prompt thing is given 
+    //then make an image boid
+    char *input_file = argv[1];
+    // char *output_file = argv[2];
+    Image *img = Image::readBMP(input_file);
+    //boidSys = new BoidSystem(box, img);
+    boidController = new BoidController(img, Vector3f(-7.0f, -7.0f, -7.0f), Vector3f(7.0f, 7.0f, 7.0f));
   }
 
   // Take a step forward for the particle shower
@@ -54,7 +67,8 @@ namespace
     //   timeStepper->takeStep(system2, h);
     //   timeStepper->takeStep(system3, h);
     // }
-    boidSys->stepSystem();
+    //boidSys->stepSystem();
+    boidController->stepSystem();
   }
 
   // Draw the current particle positions
@@ -79,7 +93,7 @@ namespace
     glScaled(50.0f,0.01f,50.0f);
     glutSolidCube(1);
     glPopMatrix();*/
-    boidSys->draw();
+    boidController->draw();
     
   }
         
@@ -162,19 +176,26 @@ namespace
             switch (button)
             {
             case GLUT_LEFT_BUTTON:
-                if (key == GLUT_ACTIVE_CTRL){ 
+                if (key == GLUT_ACTIVE_CTRL){
                 	camera.MouseClick(Camera::LEFT, x, y);
                 }
                 else{
+
                 	if (drawF == false){
-                	Vector3f force = camera.Camera::getForcePoint(boidSys->getCenterOfMass(), x, y);
-                	f = force;
+                		Vector3f center = Vector3f::ZERO;
+                		for (int i = 0; i < boidController -> m_systems.size();i++){
+                			center = center + boidController -> m_systems[i].getCenterOfMass();
+                		}
+                		center = center/boidController -> m_systems.size();
+		            	Vector3f force = camera.Camera::getForcePoint(center, x, y);
+		            	f = force;
                 	}
                 	drawF = true;
                 	cout <<"force at ";
                 	f.print();
                 	cout << endl;
                 	forces.push_back(Force(f, 40, 0.01f));
+                	
                 	
                 }
                 break;
@@ -306,7 +327,7 @@ namespace
 
     void timerFunc(int t)
     {
-    	Vector3f before = boidSys->getCenterOfMass();
+    	//Vector3f before = boidSys->getCenterOfMass();
         stepSystem();
         Matrix4f m = camera.projectionMatrix()*camera.viewMatrix();
         //m.inverse();
@@ -327,6 +348,21 @@ namespace
 // Set up OpenGL, define the callbacks and start the main loop
 int main( int argc, char* argv[] )
 {
+    //test image read/write
+    // char *input_file = argv[1];
+
+    // char *output_file = argv[2];
+    // Image *img = Image::readBMP(input_file);
+    // Image img_out( img->Width() , img->Height() );
+
+    // for(int i = 0; i < img->Width(); i++){
+    //     for(int j = 0; j < img->Height(); j++){
+    //         img_out.SetPixel(i, j, img->GetPixel(i, j));
+    //     }
+    // }
+    // img_out.SaveImage(output_file);
+
+    //setup opengl
     glutInit( &argc, argv );
 
     // We're going to animate it, so double buffer 

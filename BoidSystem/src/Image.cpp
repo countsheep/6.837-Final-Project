@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <iostream>
 
 #include "Image.h"
 
@@ -111,6 +112,37 @@ Image* Image::LoadTGA(const char *filename) {
         }
     }
     fclose(file);
+    return answer;
+}
+
+// got help from stackoverflow, question 9296059
+Image* Image::readBMP(const char* filename)
+{
+    assert(filename != NULL);
+    int i;
+    FILE* f = fopen(filename, "rb");
+    unsigned char header[54]; 
+    fread(header, sizeof(unsigned char), 54, f); //reading the FILEHEADER
+    // extract image height and width from header
+    int width = *(int*)&header[18];
+    int height = *(int*)&header[22];
+
+    Image *answer = new Image(width,height);
+    int row_padded = (width*3 + 3) & (~3);
+    unsigned char* data = new unsigned char[row_padded];
+    unsigned char tmp;
+
+    for(int i = 0; i < height; i++)
+    {
+        fread(data, sizeof(unsigned char), row_padded, f);
+        for(int j = 0; j < width*3; j += 3)
+        {
+            // Convert (B, G, R) to (R, G, B)
+            answer->SetPixel(j / 3, i, Vector3f(((float)data[j+2])/255.0f, ((float)data[j+1])/255.0f, ((float)data[j])/255.0f));
+        }
+    }
+    fclose(f);
+    answer->SaveImage("output500.bmp");
     return answer;
 }
 
@@ -239,6 +271,7 @@ struct BMPHeader
     int biClrImportant;   /* Number of important colors.  If 0, all colors 
                           are important */
 };
+
 int 
     Image::SaveBMP(const char *filename)
 {

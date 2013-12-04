@@ -5,6 +5,8 @@
 #include <vecmath.h>
 #include "BoundingBox.h"
 #include "Boid.h"
+#include "Image.h"
+#include <string>
 
 using namespace std;
 
@@ -13,6 +15,8 @@ class BoidSystem
 public:
 
 	BoidSystem(int numParticles, BoundingBox box);
+	BoidSystem(BoundingBox box, Image* img);
+	BoidSystem(BoundingBox box, vector<Boid> boids, string main_color);
 
 	int m_numParticles;
 	vector<Boid> m_mahBoids;
@@ -22,6 +26,10 @@ public:
 	BoundingBox m_box;
 
 	Vector3f defaultWind = Vector3f(0.05f, 0.0f, 0.0f);
+
+	//for color boids, save main color
+	bool isColorBoid = false;
+	string m_main_color;
 
 	// 
 	Vector3f getAvgVelocity();
@@ -36,7 +44,7 @@ public:
 	void getAvoidanceOffset(int b);
 	Vector3f getAverageVelocity(int b);
 	Vector3f inBounds(int b);
-	Vector3f stepSystem();
+	void stepSystem();
 
 	vector<int> getNearestNeighbors(int b);
 

@@ -9,20 +9,27 @@ Boid::Boid(Vector3f initPos, Vector3f initVel, float maxSpeed, float personalBub
 	m_max_speed = maxSpeed;
 	m_acceleration = Vector3f::ZERO;	
 	m_personal_bubble = personalBubble;
-	cloth = new ClothSystem(6, 6, initPos);
+	//cloth = new ClothSystem(6, 6, initPos);
 	step = new RK4();
 }
 
 void Boid::stepSystem(){
-	step -> takeStep(cloth, 0.04f);
+	//step -> takeStep(cloth, 0.04f);
 }
-
 
 void Boid::draw(){
 	glPushMatrix();
 	glTranslatef(m_position.x(), m_position.y(), m_position.z());
+	//glDisable(GL_LIGHTING);
+   glMaterialfv(GL_FRONT, GL_DIFFUSE, m_color);
+   glColorMaterial(GL_FRONT, GL_AMBIENT);
+   glEnable(GL_COLOR_MATERIAL);
+	//glColor3f(0.5f, 0.0f, 1.0f);
 	//glutSolidSphere(0.075f, 10.0f, 10.0f);
-	cloth->draw();
+   glutSolidCube(0.075f);
+   glDisable(GL_COLOR_MATERIAL);
+	//glEnable(GL_LIGHTING); 
+	//cloth->draw();
 	glPopMatrix();
 }
 
@@ -44,6 +51,6 @@ void Boid::move(vector<Vector3f> vels){
 	if(total_vel.abs() > m_max_speed)
 		total_vel = m_max_speed;
 	m_position += total_vel;
-	cloth->vel = total_vel;
+	//cloth->vel = total_vel;
 
 }
