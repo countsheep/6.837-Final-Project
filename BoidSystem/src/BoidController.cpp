@@ -10,9 +10,9 @@ BoidController::BoidController(Image* img, Vector3f minBounds, Vector3f maxBound
 	vector<Boid*> blue;
 	for (int i = 0; i < img->Width(); i++){
 		for( int j = 0; j < img->Height(); j++){
-			Vector3f pos = Vector3f(0.075f*i, 0.075f*j, 0.0f);
-			Boid* b = new Boid(pos, Vector3f::ZERO, 10.0f, 0.25f);
-			b->m_color = img->GetPixel(i, j);
+			Vector3f pos = Vector3f(0.075f*(i - img->Width()/2), 0.075f*(j - img->Height()/2), 0.0f);
+			Boid b = Boid(pos, Vector3f::ZERO, 10.0f, 0.25f);
+			b.m_color = img->GetPixel(i, j);
 			//choose which flock to add boid to
 			if(b->m_color.x() >= b->m_color.y() && b->m_color.x() >= b->m_color.z()){
 				red.push_back(b);
