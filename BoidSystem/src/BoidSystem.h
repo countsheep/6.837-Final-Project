@@ -45,7 +45,7 @@ public:
 	void getAvoidanceOffset(int b);
 	Vector3f getAverageVelocity(int b);
 	Vector3f inBounds(int b);
-	void stepSystem(vector<vector<Force*>> f);
+	void stepSystem(vector<vector<Force*>> f, bool move_to_goal, bool move_away_from_goal, Vector3f goal);
 
 	vector<int> getNearestNeighbors(int b);
 

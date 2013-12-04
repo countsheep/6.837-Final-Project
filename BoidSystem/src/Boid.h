@@ -17,6 +17,7 @@ public:
 	Boid(Vector3f initPos, Vector3f initVel, float maxSpeed, float personalBubble); //default start accel is zero
 	Vector3f m_color = Vector3f(0.0f, 1.0f, 1.0f);
 
+	Vector3f start_pos;
 	Vector3f m_position;
 	Vector3f m_velocity;
 	float m_max_speed;

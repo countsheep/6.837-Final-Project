@@ -19,7 +19,7 @@ public:
 	BoidController(Image* img, Vector3f minBounds, Vector3f maxBounds);
 	vector<BoidSystem> m_systems;
 	void draw();
-	void stepSystem(vector<vector<Force*>> f);
+	void stepSystem(vector<vector<Force*>> f, bool move_to_goal, bool move_away_from_goal, Vector3f goal);
 	Image downSample(Image* img);
 };
 

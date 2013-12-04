@@ -151,12 +151,14 @@ Vector3f BoidSystem::inBounds(int b){
 }
 
 
-void BoidSystem::stepSystem(vector<vector<Force*>> f){
+void BoidSystem::stepSystem(vector<vector<Force*>> f, bool move_to_goal, bool move_away_from_goal, Vector3f goal){
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		vector<Vector3f> vels;
-		getAvoidanceOffset(i);
-		//vels.push_back(stayInBounds(i));
-		//if(inBounds(i)){
+		//move picture back to original goal
+
+		//otherwise calculate regular boid forces
+		//else{
+			getAvoidanceOffset(i);
 			vels.push_back(moveTowardCenterOfMass(i));
 			if(m_mahBoids[i]->m_avoidance_decay_counter > 0){
 				vels.push_back(m_mahBoids[i]->m_avoidanceVec*0.1f*m_mahBoids[i]->m_avoidance_decay_counter);
@@ -178,21 +180,30 @@ void BoidSystem::stepSystem(vector<vector<Force*>> f){
 				vels.push_back(m_box.getForceAtPoint(m_mahBoids[i]->m_position, -1));//defaultWind);
 			}
 			vels.push_back(inBounds(i));
-		//}
-		for (int i = 0; i < f.size(); i++){
-			vector<Force*> fv = f[i];
-			for (int j = 0; j < fv.size(); j++){
-				Force *force = fv[j];
-				Vector3f b_pos = m_mahBoids[i]->m_position;
-				Vector3f fc = force->getCenter();
-				Vector3f dif = b_pos-fc;
-				if (dif.abs() >= force -> getRadius()){
-					Vector3f f_vel = (2.0f/(force -> getRadius()*dif.abs()+1.0f))*(force->getScale())*(dif.normalized());
-					vels.push_back(f_vel);
-					
+			if(move_to_goal){
+				vels.push_back((goal - m_mahBoids[i]->m_position)*0.1f);
+			}
+			else if(move_away_from_goal){
+				vels.push_back((m_mahBoids[i]->m_position - goal)*0.1f);
+			}
+			//calculate rippling force
+			for (int i = 0; i < f.size(); i++){
+				vector<Force*> fv = f[i];
+				for (int j = 0; j < fv.size(); j++){
+					Force *force = fv[j];
+					Vector3f b_pos = m_mahBoids[i]->m_position;
+					Vector3f fc = force->getCenter();
+					Vector3f dif = b_pos-fc;
+					if (dif.abs() >= force -> getRadius()){
+						Vector3f f_vel = (2.0f/(force -> getRadius()*dif.abs()+1.0f))*(force->getScale())*(dif.normalized());
+						vels.push_back(f_vel);
+						
+					}
 				}
 			}
-		}
+		//}
+
+
 		m_mahBoids[i]->move(vels);
 		m_mahBoids[i]->stepSystem();
 	}

@@ -44,16 +44,13 @@ void BoidController::draw(){
 	}
 }
 
-//move 
-//1. move towards center of mass
-//2. try to keep distance away
-//3. match velocity of other boids
-//4. some kind of goal
-// also, keep velocity under max speed
-
-void BoidController::stepSystem(vector<vector<Force*>> f){
+/**
+* 
+* move_to_start - boolean to indicate that boids should head towards their start position
+*/
+void BoidController::stepSystem(vector<vector<Force*>> f, bool move_to_goal, bool move_away_from_goal, Vector3f goal){
 	for(int i = 0; i < m_systems.size(); i++){
-		m_systems[i].stepSystem(f);
+		m_systems[i].stepSystem(f, move_to_goal, move_away_from_goal, goal);
 	}
 }
 

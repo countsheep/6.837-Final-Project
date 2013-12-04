@@ -40,6 +40,10 @@ namespace
     vector<vector<Force*>> forces;
     bool drawF = false;
     Vector3f f;
+    bool move_to_goal = false;
+    bool move_away_from_goal = false;
+    bool move_to_start = false;
+    Vector3f goal = Vector3f::ZERO;
 
   // initialize your particle systems
   ///TODO: read argv here. set timestepper , step size etc
@@ -96,7 +100,7 @@ namespace
     		forces.back().push_back(fp);
     	}
     }
-    boidController->stepSystem(forces);
+    boidController->stepSystem(forces, move_to_goal, move_away_from_goal, goal);
   }
 
   // Draw the current particle positions
@@ -188,6 +192,24 @@ namespace
                 if (key == GLUT_ACTIVE_CTRL){
                 	camera.MouseClick(Camera::LEFT, x, y);
                 }
+                else if(key == GLUT_ACTIVE_ALT){
+                    move_to_goal = true;
+                    Vector3f center = Vector3f::ZERO;
+                    for (int i = 0; i < boidController -> m_systems.size();i++){
+                        center = center + boidController -> m_systems[i].getCenterOfMass();
+                    }
+                    center = center/boidController -> m_systems.size();
+                    goal = camera.Camera::getForcePoint(center, x, y);
+                }
+                else if(key == GLUT_ACTIVE_SHIFT){
+                    move_away_from_goal = true;
+                    Vector3f center = Vector3f::ZERO;
+                    for (int i = 0; i < boidController -> m_systems.size();i++){
+                        center = center + boidController -> m_systems[i].getCenterOfMass();
+                    }
+                    center = center/boidController -> m_systems.size();
+                    goal = camera.Camera::getForcePoint(center, x, y);
+                }
                 else{
 
                 	if (drawF == false){
@@ -207,7 +229,6 @@ namespace
                 	Force *fp = new Force(f, 55, 0.03f);
                 	fv.push_back(fp);
                 	forces.push_back(fv);
-                	
                 }
                 break;
             case GLUT_MIDDLE_BUTTON:
@@ -224,6 +245,9 @@ namespace
             camera.MouseRelease(x,y);
             g_mousePressed = false;
             drawF = false;
+            move_to_start = false;
+            move_to_goal = false;
+            move_away_from_goal = false;
         }
         glutPostRedisplay();
     }

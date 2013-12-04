@@ -4,6 +4,7 @@ using namespace std;
 
 
 Boid::Boid(Vector3f initPos, Vector3f initVel, float maxSpeed, float personalBubble){
+	start_pos = initPos;
 	m_position = initPos;
 	m_velocity = initVel;
 	m_max_speed = maxSpeed;
