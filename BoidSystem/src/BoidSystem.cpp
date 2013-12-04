@@ -10,7 +10,7 @@ BoidSystem::BoidSystem(int numParticles, BoundingBox box):m_box(box){
 	for (int i = 0; i < m_numParticles; i++){
 		Vector3f pos = m_box.getRandPosition();
 		//pos.print();
-		Boid b = Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
+		Boid* b = new Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
 		m_mahBoids.push_back(b);
 		goalPos = m_box.getCenter();
 	}
@@ -21,8 +21,8 @@ BoidSystem::BoidSystem(BoundingBox box, Image* img):m_box(box){
 	for (int i = 0; i < img->Width(); i++){
 		for( int j = 0; j < img->Height(); j++){
 			Vector3f pos = Vector3f(0.075f*i, 0.075f*j, 0.0f);
-			Boid b = Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
-			b.m_color = img->GetPixel(i, j);
+			Boid* b = new Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
+			b->m_color = img->GetPixel(i, j);
 			m_mahBoids.push_back(b);
 			goalPos = m_box.getCenter();
 		}
@@ -30,7 +30,7 @@ BoidSystem::BoidSystem(BoundingBox box, Image* img):m_box(box){
 }
 
 //initialize color boid
-BoidSystem::BoidSystem(BoundingBox box, vector<Boid> boids, string main_color):m_box(box){
+BoidSystem::BoidSystem(BoundingBox box, vector<Boid*> boids, string main_color):m_box(box){
 	m_numParticles = boids.size();
 	m_mahBoids = boids;
 	goalPos = m_box.getCenter();
@@ -41,7 +41,7 @@ BoidSystem::BoidSystem(BoundingBox box, vector<Boid> boids, string main_color):m
 Vector3f BoidSystem::getAvgVelocity(){
 	Vector3f vel = Vector3f::ZERO;
 	for (int i = 0; i<m_mahBoids.size(); i++){
-		vel += m_mahBoids[i].m_velocity;
+		vel += m_mahBoids[i]->m_velocity;
 	}
 	return vel/m_mahBoids.size();
 }
@@ -54,7 +54,7 @@ Vector3f BoidSystem::getCenterOfMassMinusB(int b){
 	Vector3f pos = Vector3f::ZERO;
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		if(i != b)
-			pos += m_mahBoids[i].m_position;
+			pos += m_mahBoids[i]->m_position;
 	}
 	return pos/(m_mahBoids.size()-1);
 }
@@ -64,14 +64,14 @@ Vector3f BoidSystem::getCenterOfMassOfBoids(vector<int> neighbors){
 	if(neighbors.size() == 0)
 		return Vector3f::ZERO;
 	for (int i = 0; i<neighbors.size(); i++){
-			pos += m_mahBoids[neighbors[i]].m_position;
+			pos += m_mahBoids[neighbors[i]]->m_position;
 	}
 	return pos/(neighbors.size());
 }
 
 Vector3f BoidSystem::moveTowardCenterOfMass(int b){
 	Vector3f c_m = getCenterOfMassOfBoids(getNearestNeighbors(b));
-	return 0.01f * (c_m - m_mahBoids[b].m_position);
+	return 0.01f * (c_m - m_mahBoids[b]->m_position);
 }
 
 Vector3f BoidSystem::moveAwayFromForceSphere(int b){
@@ -86,18 +86,18 @@ Vector3f BoidSystem::moveTowardsGoalPoint(int b){
 //causes weird bubbling
 void BoidSystem::getAvoidanceOffset(int b){
 	Vector3f vel = Vector3f::ZERO;
-	Vector3f pos = m_mahBoids[b].m_position;
+	Vector3f pos = m_mahBoids[b]->m_position;
 	bool violated = false;
-	float personal_bubble = m_mahBoids[b].m_personal_bubble;
+	float personal_bubble = m_mahBoids[b]->m_personal_bubble;
 	for (int i = 0; i<m_mahBoids.size(); i++){
-		if(i != b && getDist(m_mahBoids[i].m_position, pos) < personal_bubble){
-			vel -= (m_mahBoids[i].m_position - pos);
+		if(i != b && getDist(m_mahBoids[i]->m_position, pos) < personal_bubble){
+			vel -= (m_mahBoids[i]->m_position - pos);
 			violated = true;
 		}
 	}
 	if(violated == true){
-		m_mahBoids[b].m_avoidance_decay_counter = 5;
-		m_mahBoids[b].m_avoidanceVec = vel;
+		m_mahBoids[b]->m_avoidance_decay_counter = 5;
+		m_mahBoids[b]->m_avoidanceVec = vel;
 	}
 }
 
@@ -105,7 +105,7 @@ Vector3f BoidSystem::getAverageVelocity(int b){
 	Vector3f avg_vel = Vector3f::ZERO;
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		if(i != b)
-			avg_vel += m_mahBoids[i].m_velocity;
+			avg_vel += m_mahBoids[i]->m_velocity;
 	}
 	return 0.125f * avg_vel / (m_mahBoids.size()-1);
 }
@@ -114,7 +114,7 @@ Vector3f BoidSystem::getAverageVelocity(int b){
 //if boid crosses boundary lines, pushes boid back by 1% of the bounding box size
 Vector3f BoidSystem::inBounds(int b){
 	Vector3f vel = Vector3f::ZERO;
-	Vector3f pos = m_mahBoids[b].m_position;
+	Vector3f pos = m_mahBoids[b]->m_position;
 	/*cout << "Size of bounding box " << endl;
 	m_box.m_minCoords.print();
 	m_box.m_maxCoords.print();*/
@@ -151,16 +151,16 @@ Vector3f BoidSystem::inBounds(int b){
 }
 
 
-void BoidSystem::stepSystem(){
+void BoidSystem::stepSystem(vector<vector<Force*>> f){
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		vector<Vector3f> vels;
 		getAvoidanceOffset(i);
 		//vels.push_back(stayInBounds(i));
 		//if(inBounds(i)){
 			vels.push_back(moveTowardCenterOfMass(i));
-			if(m_mahBoids[i].m_avoidance_decay_counter > 0){
-				vels.push_back(m_mahBoids[i].m_avoidanceVec*0.1f*m_mahBoids[i].m_avoidance_decay_counter);
-				m_mahBoids[i].m_avoidance_decay_counter -=1;
+			if(m_mahBoids[i]->m_avoidance_decay_counter > 0){
+				vels.push_back(m_mahBoids[i]->m_avoidanceVec*0.1f*m_mahBoids[i]->m_avoidance_decay_counter);
+				m_mahBoids[i]->m_avoidance_decay_counter -=1;
 			}
 			vels.push_back(getAverageVelocity(i));
 			//if color boid, swirl force around different axes
@@ -172,15 +172,29 @@ void BoidSystem::stepSystem(){
 				else if(m_main_color == "blue"){
 					axis = 2;
 				}
-				vels.push_back(m_box.getForceAtPoint(m_mahBoids[i].m_position, axis));
+				vels.push_back(m_box.getForceAtPoint(m_mahBoids[i]->m_position, axis));
 			}
 			else{
-				vels.push_back(m_box.getForceAtPoint(m_mahBoids[i].m_position, -1));//defaultWind);
+				vels.push_back(m_box.getForceAtPoint(m_mahBoids[i]->m_position, -1));//defaultWind);
 			}
 			vels.push_back(inBounds(i));
 		//}
-		m_mahBoids[i].move(vels);
-		m_mahBoids[i].stepSystem();
+		for (int i = 0; i < f.size(); i++){
+			vector<Force*> fv = f[i];
+			for (int j = 0; j < fv.size(); j++){
+				Force *force = fv[j];
+				Vector3f b_pos = m_mahBoids[i]->m_position;
+				Vector3f fc = force->getCenter();
+				Vector3f dif = b_pos-fc;
+				if (dif.abs() >= force -> getRadius()){
+					Vector3f f_vel = (2.0f/(force -> getRadius()*dif.abs()+1.0f))*(force->getScale())*(dif.normalized());
+					vels.push_back(f_vel);
+					
+				}
+			}
+		}
+		m_mahBoids[i]->move(vels);
+		m_mahBoids[i]->stepSystem();
 	}
 }
 
@@ -196,7 +210,7 @@ vector<int> BoidSystem::getNearestNeighbors(int b){
 	int furthest_close_boid = -1;
 	vector<float> dists;
 	for(int i = 0; i < m_mahBoids.size(); i++){
-		float dist = getDist(m_mahBoids[b].m_position, m_mahBoids[i].m_position);
+		float dist = getDist(m_mahBoids[b]->m_position, m_mahBoids[i]->m_position);
 		// if there are less than five neighbors, just add this boid
 		if(neighbors.size() < 8){
 			neighbors.push_back(i);
@@ -250,6 +264,6 @@ float BoidSystem::getDist(Vector3f p1, Vector3f p2){
 
 void BoidSystem::draw(){
 	for (int i = 0; i<m_mahBoids.size(); i++){
-		m_mahBoids[i].draw();
+		m_mahBoids[i]->draw();
 	}
 }

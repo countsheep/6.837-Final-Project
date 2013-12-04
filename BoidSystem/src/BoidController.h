@@ -8,6 +8,7 @@
 #include "BoidSystem.h"
 #include "Boid.h"
 #include "Image.h"
+#include "Force.h"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ public:
 	BoidController(Image* img, Vector3f minBounds, Vector3f maxBounds);
 	vector<BoidSystem> m_systems;
 	void draw();
-	void stepSystem();
+	void stepSystem(vector<vector<Force*>> f);
 	
 };
 

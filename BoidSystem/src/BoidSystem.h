@@ -7,6 +7,7 @@
 #include "Boid.h"
 #include "Image.h"
 #include <string>
+#include "Force.h"
 
 using namespace std;
 
@@ -16,10 +17,10 @@ public:
 
 	BoidSystem(int numParticles, BoundingBox box);
 	BoidSystem(BoundingBox box, Image* img);
-	BoidSystem(BoundingBox box, vector<Boid> boids, string main_color);
+	BoidSystem(BoundingBox box, vector<Boid*> boids, string main_color);
 
 	int m_numParticles;
-	vector<Boid> m_mahBoids;
+	vector<Boid*> m_mahBoids;
 	Vector3f goalPos; //if we decide to make boids tend to a specific position
 	// forces that move boids
 	vector<Vector3f> forces;
@@ -44,7 +45,7 @@ public:
 	void getAvoidanceOffset(int b);
 	Vector3f getAverageVelocity(int b);
 	Vector3f inBounds(int b);
-	void stepSystem();
+	void stepSystem(vector<vector<Force*>> f);
 
 	vector<int> getNearestNeighbors(int b);
 

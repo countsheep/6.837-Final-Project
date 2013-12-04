@@ -22,6 +22,7 @@
 
 #include "Force.h"
 #include "Image.h"
+#include "OctTree.h"
 
 using namespace std;
 
@@ -36,7 +37,8 @@ namespace
     //BoidSystem* boidSys;
     BoidController* boidController;
     float h = 0.02f;
-    vector<Force> forces;
+    vector<vector<Force*>> forces;
+    bool drawF = false;
 
   // initialize your particle systems
   ///TODO: read argv here. set timestepper , step size etc
@@ -68,7 +70,32 @@ namespace
     //   timeStepper->takeStep(system3, h);
     // }
     //boidSys->stepSystem();
-    boidController->stepSystem();
+    if (forces.size()>0){
+    	if (forces[0].size()>0){
+    		if (forces[0][0]->getAge()<1){
+    			forces[0].erase(forces[0].begin());
+    		}
+    	}
+    	else{forces.erase(forces.begin());}
+    }
+    for (int i = 0; i < forces.size(); i++){
+    	//cout << "step 1" << endl;
+    	vector<Force*> fv = forces[i];
+    	for (int j = 0; j < fv.size(); j++){
+    		Force *force = fv[j];
+    		force->age();
+    		//cout << "growing" << endl;
+    		force->grow();
+    	}
+    }
+    if (drawF){
+    	Force* f = forces.back().back();
+    	if (f->getAge()%20==0){
+    		Force *fp = new Force(f->getCenter(), 55, 0.03f);
+    		forces.back().push_back(fp);
+    	}
+    }
+    boidController->stepSystem(forces);
   }
 
   // Draw the current particle positions
@@ -93,6 +120,7 @@ namespace
     glScaled(50.0f,0.01f,50.0f);
     glutSolidCube(1);
     glPopMatrix();*/
+    
     boidController->draw();
     
   }
@@ -104,7 +132,7 @@ namespace
     // This is the camera
     Camera camera;
     Vector3f f;
-    bool drawF = false;
+    
 
     // These are state variables for the UI
     bool g_mousePressed = false;
@@ -194,8 +222,10 @@ namespace
                 	cout <<"force at ";
                 	f.print();
                 	cout << endl;
-                	forces.push_back(Force(f, 40, 0.01f));
-                	
+                	vector<Force*> fv;
+                	Force *fp = new Force(f, 55, 0.03f);
+                	fv.push_back(fp);
+                	forces.push_back(fv);
                 	
                 }
                 break;
@@ -281,11 +311,22 @@ namespace
         // THIS IS WHERE THE DRAW CODE GOES.
 
         drawSystem();
-        if (drawF){
-			glPushMatrix();
-			glTranslatef(f.x(), f.y(), f.z());
-			glutSolidSphere(0.075f, 10.0f, 10.0f);
-			glPopMatrix();
+		for (int i = 0; i < forces.size(); i++){
+			vector<Force*> fv = forces[i];
+			for (int j = 0; j < fv.size(); j++){
+				Force *force = fv[j];
+				//glPushMatrix();
+				//glLoadIdentity();
+				glPushMatrix();
+				Vector3f trans = force -> getCenter();
+
+				glTranslatef(trans.x(), trans.y(), trans.z());
+				Matrix4f m = camera.viewMatrix();
+				m.inverse();
+				force->draw(m);
+
+				glPopMatrix();
+			}
 		}
 
         // This draws the coordinate axes when you're rotating, to

@@ -5,19 +5,19 @@ using namespace std;
 
 BoidController::BoidController(Image* img, Vector3f minBounds, Vector3f maxBounds){
 	// first boidsystem will have a dominant color of red, second will be green, etc. 
-	vector<Boid> red;
-	vector<Boid> green;
-	vector<Boid> blue;
+	vector<Boid*> red;
+	vector<Boid*> green;
+	vector<Boid*> blue;
 	for (int i = 0; i < img->Width(); i++){
 		for( int j = 0; j < img->Height(); j++){
 			Vector3f pos = Vector3f(0.075f*i, 0.075f*j, 0.0f);
-			Boid b = Boid(pos, Vector3f::ZERO, 10.0f, 0.25f);
-			b.m_color = img->GetPixel(i, j);
+			Boid* b = new Boid(pos, Vector3f::ZERO, 10.0f, 0.25f);
+			b->m_color = img->GetPixel(i, j);
 			//choose which flock to add boid to
-			if(b.m_color.x() >= b.m_color.y() && b.m_color.x() >= b.m_color.z()){
+			if(b->m_color.x() >= b->m_color.y() && b->m_color.x() >= b->m_color.z()){
 				red.push_back(b);
 			}
-			else if(b.m_color.y() >= b.m_color.x() && b.m_color.y() >= b.m_color.z()){
+			else if(b->m_color.y() >= b->m_color.x() && b->m_color.y() >= b->m_color.z()){
 				green.push_back(b);
 			}
 			else{
@@ -50,8 +50,8 @@ void BoidController::draw(){
 //4. some kind of goal
 // also, keep velocity under max speed
 
-void BoidController::stepSystem(){
+void BoidController::stepSystem(vector<vector<Force*>> f){
 	for(int i = 0; i < m_systems.size(); i++){
-		m_systems[i].stepSystem();
+		m_systems[i].stepSystem(f);
 	}
 }
