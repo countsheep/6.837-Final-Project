@@ -63,7 +63,6 @@ namespace
     		image = true;
     		
     	} else if (!strcmp(argv[i],"-oct")) {
-    		cout << "using oct" << endl;
     		oct = true;
     	
     	}
@@ -72,7 +71,6 @@ namespace
     		max_boids = atoi(argv[i]);
     	}
     	else if (!strcmp(argv[i], "-scale")) {
-    		cout << "got a scale" << endl;
     		i++; assert (i < argc); 
     		scale = atoi(argv[i]);
     	}
@@ -216,7 +214,6 @@ namespace
 					else{
 						center = boidSys ->getCenterOfMass();
 					}
-                    center = center/boidController -> m_systems.size();
                     goal = camera.Camera::getForcePoint(center, x, y);
                 }
                 else if(key == GLUT_ACTIVE_SHIFT){
@@ -231,7 +228,6 @@ namespace
 					else{
 						center = boidSys ->getCenterOfMass();
 					}
-                    center = center/boidController -> m_systems.size();
                     goal = camera.Camera::getForcePoint(center, x, y);
                 }
                 else{
@@ -251,8 +247,6 @@ namespace
 		            	f = force;
                 	}
                 	drawF = true;
-
-                	cout << endl;
                 	vector<Force*> fv;
                 	Force *fp = new Force(f, 55, 0.03f);
                 	fv.push_back(fp);

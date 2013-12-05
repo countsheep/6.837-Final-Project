@@ -27,13 +27,15 @@ Vector3f Force::getCenter(){return m_center;}
 void Force::draw(Matrix4f cam){
 	
 	glBegin(GL_LINE_LOOP);
- 	
+ 	glMaterialfv(GL_FRONT, GL_DIFFUSE, Vector3f(0.7f, 0.7f, 0.7f));
+	glColorMaterial(GL_FRONT, GL_AMBIENT);
+	glEnable(GL_COLOR_MATERIAL);
    for (int i=0; i <360; i++)
    {
       float degInRad = i*DEG2RAD;
       Vector3f v = (cam*Vector4f(cos(degInRad)*radius,sin(degInRad)*radius, 0.0f, 0.0f)).xyz();
       glVertex3f(v.x(), v.y(), v.z());
    }
- 
+ 	glDisable(GL_COLOR_MATERIAL);
    glEnd();
 }
