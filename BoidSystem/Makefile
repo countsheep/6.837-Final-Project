@@ -6,22 +6,22 @@ ifndef config
 endif
 export config
 
-PROJECTS := a3 vecmath
+PROJECTS := boids vecmath
 
 .PHONY: all clean help $(PROJECTS)
 
 all: $(PROJECTS)
 
-a3: vecmath
-	@echo "==== Building a3 ($(config)) ===="
-	@${MAKE} --no-print-directory -C . -f a3.make
+boids: vecmath
+	@echo "==== Building boids ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f boids.make
 
 vecmath: 
 	@echo "==== Building vecmath ($(config)) ===="
 	@${MAKE} --no-print-directory -C vecmath -f Makefile
 
 clean:
-	@${MAKE} --no-print-directory -C . -f a3.make clean
+	@${MAKE} --no-print-directory -C . -f boids.make clean
 	@${MAKE} --no-print-directory -C vecmath -f Makefile clean
 
 help:
@@ -34,7 +34,7 @@ help:
 	@echo "TARGETS:"
 	@echo "   all (default)"
 	@echo "   clean"
-	@echo "   a3"
+	@echo "   boids"
 	@echo "   vecmath"
 	@echo ""
 	@echo "For more information, see http://industriousone.com/premake/quick-start"

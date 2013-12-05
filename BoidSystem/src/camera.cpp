@@ -239,17 +239,6 @@ Matrix4f Camera::viewMatrix() const
     
 	return lookAt * mCurrentRot * Matrix4f::translation( -mCurrentCenter );
 
-	/*
-    gluLookAt(0,0,mCurrentDistance,
-              0,0,0,
-              0.0, 1.0, 0.0);
-
-    // rotate object
-    glMultMatrixf(mCurrentRot);
-
-    //translate object to center
-    glTranslatef(-mCurrentCenter[0],-mCurrentCenter[1],-mCurrentCenter[2]);    
-	*/
 }
 
 void Camera::DistanceZoom(int x, int y)
@@ -297,8 +286,7 @@ Vector3f Camera::getForcePoint(Vector3f center, int x, int y){
 		          modelMatrix, projectionMatrix, viewport,
 		      &x1, &y1, &z1 );
 	Vector3f ray = Vector3f(x1, y1, z1).normalized();
-	//origin.print();
-	//ray.print();
+
 	float t = -1.0f*(d+Vector3f::dot(origin, norm))/Vector3f::dot(ray, norm);
 	return (t*ray+origin);
 

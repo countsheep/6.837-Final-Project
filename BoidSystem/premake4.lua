@@ -3,7 +3,7 @@
 --   premake4 --os=linux gmake
 -- Generate Visual Studio (not necessary if you add new files from Visual Studio itself):
 --   premake4 --os=windows vs2010
-assignment = "a3"
+assignment = "boids"
 
 solution(assignment)
   configurations { "Debug", "Release" }

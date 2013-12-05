@@ -3,33 +3,30 @@
 using namespace std;
 
 
-Boid::Boid(Vector3f initPos, Vector3f initVel, float maxSpeed, float personalBubble){
+Boid::Boid(Vector3f initPos, Vector3f initVel, float maxSpeed, float personalBubble, bool img){
+	m_img = img;
+	start_pos = initPos;
 	m_position = initPos;
 	m_velocity = initVel;
 	m_max_speed = maxSpeed;
 	m_acceleration = Vector3f::ZERO;	
 	m_personal_bubble = personalBubble;
-	//cloth = new ClothSystem(6, 6, initPos);
-	step = new RK4();
-}
-
-void Boid::stepSystem(){
-	//step -> takeStep(cloth, 0.04f);
 }
 
 void Boid::draw(){
 	glPushMatrix();
 	glTranslatef(m_position.x(), m_position.y(), m_position.z());
-	//glDisable(GL_LIGHTING);
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, m_color);
-   glColorMaterial(GL_FRONT, GL_AMBIENT);
-   glEnable(GL_COLOR_MATERIAL);
-	//glColor3f(0.5f, 0.0f, 1.0f);
-	//glutSolidSphere(0.075f, 10.0f, 10.0f);
-   glutSolidCube(0.075f);
-   glDisable(GL_COLOR_MATERIAL);
-	//glEnable(GL_LIGHTING); 
-	//cloth->draw();
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, m_color);
+	glColorMaterial(GL_FRONT, GL_AMBIENT);
+	glEnable(GL_COLOR_MATERIAL);
+	if (m_img){
+	   glutSolidCube(0.075f);
+	}
+	else{
+		glutSolidSphere(0.075f, 10.0f, 10.0f);
+	}
+	
+	glDisable(GL_COLOR_MATERIAL);
 	glPopMatrix();
 }
 

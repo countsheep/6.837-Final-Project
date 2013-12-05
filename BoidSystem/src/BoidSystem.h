@@ -16,9 +16,9 @@ class BoidSystem
 {
 public:
 
-	BoidSystem(int numParticles, BoundingBox box);
-	BoidSystem(BoundingBox box, Image* img);
-	BoidSystem(BoundingBox box, vector<Boid*> boids, string main_color);
+	BoidSystem(int numParticles, BoundingBox box, bool o);
+	BoidSystem(BoundingBox box, Image* img, bool o);
+	BoidSystem(BoundingBox box, vector<Boid*> boids, string main_color, bool o);
 
 	int m_numParticles;
 	vector<Boid*> m_mahBoids;
@@ -43,12 +43,13 @@ public:
 	Vector3f getCenterOfMassOfBoidsB(vector<Boid*> neighbors);
 	
 	Vector3f moveTowardCenterOfMass(int b);
+	Vector3f moveTowardCenterOfMassB(int b);
 	Vector3f moveAwayFromForceSphere(int b);
 	Vector3f moveTowardsGoalPoint(int b);
 	void getAvoidanceOffset(int b);
 	Vector3f getAverageVelocity(int b);
 	Vector3f inBounds(int b);
-	void stepSystem(vector<vector<Force*>> f);
+	void stepSystem(vector<vector<Force*>> f, bool move_to_goal, bool move_away_from_goal, Vector3f goal);
 
 	vector<Boid*> getNearestNeighborsOct(int b);
 	vector<int> getNearestNeighbors(int b);
@@ -58,6 +59,9 @@ public:
 	void draw();
 	
 	OctTree* oct;
+	
+	bool useOct;
+	bool image;
 	
 };
 

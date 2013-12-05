@@ -4,9 +4,6 @@
 #include <vector>
 #include <vecmath.h>
 #include "extra.h"
-#include "TimeStepper.h"
-#include "particleSystem.h"
-#include "ClothSystem.h"
 
 using namespace std;
 
@@ -14,9 +11,10 @@ class Boid
 {
 public:
 
-	Boid(Vector3f initPos, Vector3f initVel, float maxSpeed, float personalBubble); //default start accel is zero
+	Boid(Vector3f initPos, Vector3f initVel, float maxSpeed, float personalBubble, bool img); //default start accel is zero
 	Vector3f m_color = Vector3f(0.0f, 1.0f, 1.0f);
 
+	Vector3f start_pos;
 	Vector3f m_position;
 	Vector3f m_velocity;
 	float m_max_speed;
@@ -35,9 +33,7 @@ public:
 	// c_m represents the center of mass of all the other boid individuals
 	void move(vector<Vector3f> vels);
 	void draw();
-	void stepSystem();
-	TimeStepper* step;
-	ClothSystem* cloth;
+	bool m_img;
 	
 };
 

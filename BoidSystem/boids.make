@@ -22,7 +22,7 @@ endif
 ifeq ($(config),debug)
   OBJDIR     = obj/Debug
   TARGETDIR  = debug
-  TARGET     = $(TARGETDIR)/a3
+  TARGET     = $(TARGETDIR)/boids
   DEFINES   += -D_DEBUG -DDEBUG
   INCLUDES  += -Ivecmath/include
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
@@ -39,14 +39,14 @@ ifeq ($(config),debug)
   endef
   define POSTBUILDCMDS
 	@echo Running post-build commands
-	cp debug/a3 a3
+	cp debug/boids boids
   endef
 endif
 
 ifeq ($(config),release)
   OBJDIR     = obj/Release
   TARGETDIR  = release
-  TARGET     = $(TARGETDIR)/a3
+  TARGET     = $(TARGETDIR)/boids
   DEFINES   += -DNDEBUG
   INCLUDES  += -Ivecmath/include
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
@@ -63,24 +63,19 @@ ifeq ($(config),release)
   endef
   define POSTBUILDCMDS
 	@echo Running post-build commands
-	cp release/a3 a3
+	cp release/boids boids
   endef
 endif
 
 OBJECTS := \
-	$(OBJDIR)/simpleSystem.o \
 	$(OBJDIR)/camera.o \
 	$(OBJDIR)/main.o \
-	$(OBJDIR)/pendulumSystem.o \
 	$(OBJDIR)/Boid.o \
 	$(OBJDIR)/BoundingBox.o \
-	$(OBJDIR)/particleSystem.o \
 	$(OBJDIR)/BoidController.o \
 	$(OBJDIR)/Image.o \
 	$(OBJDIR)/BoidSystem.o \
 	$(OBJDIR)/Force.o \
-	$(OBJDIR)/TimeStepper.o \
-	$(OBJDIR)/ClothSystem.o \
 	$(OBJDIR)/OctTree.o \
 
 RESOURCES := \
@@ -99,7 +94,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking a3
+	@echo Linking boids
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -120,7 +115,7 @@ else
 endif
 
 clean:
-	@echo Cleaning a3
+	@echo Cleaning boids
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -142,25 +137,16 @@ $(GCH): $(PCH)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 endif
 
-$(OBJDIR)/simpleSystem.o: src/simpleSystem.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/camera.o: src/camera.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/main.o: src/main.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/pendulumSystem.o: src/pendulumSystem.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/Boid.o: src/Boid.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/BoundingBox.o: src/BoundingBox.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/particleSystem.o: src/particleSystem.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/BoidController.o: src/BoidController.cpp
@@ -173,12 +159,6 @@ $(OBJDIR)/BoidSystem.o: src/BoidSystem.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/Force.o: src/Force.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/TimeStepper.o: src/TimeStepper.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/ClothSystem.o: src/ClothSystem.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/OctTree.o: src/OctTree.cpp

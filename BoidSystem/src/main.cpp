@@ -15,10 +15,6 @@
 
 ///TODO: include more headers if necessary
 
-#include "TimeStepper.h"
-#include "simpleSystem.h"
-#include "pendulumSystem.h"
-#include "ClothSystem.h"
 
 #include "Force.h"
 #include "Image.h"
@@ -30,16 +26,20 @@ using namespace std;
 namespace
 {
 
-    ClothSystem *system;
-    ParticleSystem *system2;
-    PendulumSystem *system3;
-    TimeStepper * timeStepper;
-    //BoidSystem* boidSys;
+    BoidSystem* boidSys;
     BoidController* boidController;
     float h = 0.02f;
     vector<vector<Force*>> forces;
     bool drawF = false;
     Vector3f f;
+    bool move_to_goal = false;
+    bool move_away_from_goal = false;
+    bool move_to_start = false;
+    Vector3f goal = Vector3f::ZERO;
+    bool image = false;
+    int max_boids = 600;
+    bool oct = false;
+    float scale = 1000;
 
   // initialize your particle systems
   ///TODO: read argv here. set timestepper , step size etc
@@ -48,29 +48,50 @@ namespace
     // seed random number generator
     srand(time (0));
     BoundingBox box = BoundingBox(Vector3f(-7.0f, -7.0f, -7.0f), Vector3f(7.0f, 7.0f, 7.0f));
-    //boidSys = new BoidSystem(25, box);
+
     //check if image command prompt thing is given 
     //then make an image boid
-    char *input_file = argv[1];
-    // char *output_file = argv[2];
-    Image *img = Image::readBMP(input_file);
-    //boidSys = new BoidSystem(box, img);
-    boidController = new BoidController(img, Vector3f(-7.0f, -7.0f, -7.0f), Vector3f(7.0f, 7.0f, 7.0f));
+    char *input_file;
+
+    Image *img;
+    
+    for (int i = 1; i < argc; i++) {
+    	if (!strcmp(argv[i],"-image")) {
+    		i++; assert (i < argc); 
+    		input_file = argv[i];
+    		img = Image::readBMP(input_file);
+    		image = true;
+    		
+    	} else if (!strcmp(argv[i],"-oct")) {
+    		cout << "using oct" << endl;
+    		oct = true;
+    	
+    	}
+    	else if (!strcmp(argv[i], "-max_boids")) {
+    		i++; assert (i < argc); 
+    		max_boids = atoi(argv[i]);
+    	}
+    	else if (!strcmp(argv[i], "-scale")) {
+    		cout << "got a scale" << endl;
+    		i++; assert (i < argc); 
+    		scale = atoi(argv[i]);
+    	}
+   }
+   BoundingBox r_box(Vector3f(-7.0f, -7.0f, -7.0f), Vector3f(7.0f, 7.0f, 7.0f));
+   
+   
+   if (image){
+	   boidController = new BoidController(img, Vector3f(-7.0f, -7.0f, -7.0f), Vector3f(7.0f, 7.0f, 7.0f), scale, oct);
+   }
+   
+   else{boidSys =  new BoidSystem(max_boids, r_box, oct);}
+
+    
   }
 
-  // Take a step forward for the particle shower
-  ///TODO: Optional. modify this function to display various particle systems
-  ///and switch between different timeSteppers
+ 
   void stepSystem()
   {
-      ///TODO The stepsize should change according to commandline arguments
-    //const float h = 0.02f;
-    // if(timeStepper!=0){
-    //   timeStepper->takeStep(system,h);
-    //   timeStepper->takeStep(system2, h);
-    //   timeStepper->takeStep(system3, h);
-    // }
-    //boidSys->stepSystem();
     if (forces.size()>0){
     	if (forces[0].size()>0){
     		if (forces[0][0]->getAge()<1){
@@ -80,12 +101,12 @@ namespace
     	else{forces.erase(forces.begin());}
     }
     for (int i = 0; i < forces.size(); i++){
-    	//cout << "step 1" << endl;
+
     	vector<Force*> fv = forces[i];
     	for (int j = 0; j < fv.size(); j++){
     		Force *force = fv[j];
     		force->age();
-    		//cout << "growing" << endl;
+
     		force->grow();
     	}
     }
@@ -96,33 +117,17 @@ namespace
     		forces.back().push_back(fp);
     	}
     }
-    boidController->stepSystem(forces);
+    if (image){
+    boidController->stepSystem(forces, move_to_goal, move_away_from_goal, goal);
+    }
+    else{boidSys -> stepSystem(forces, move_to_goal, move_away_from_goal, goal);}
   }
 
-  // Draw the current particle positions
+
   void drawSystem()
   {
-    
-    // Base material colors (they don't change)
-    /*GLfloat particleColor[] = {0.4f, 0.7f, 1.0f, 1.0f};
-    GLfloat floorColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
-    
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, particleColor);
-    
-    glutSolidSphere(0.1f,10.0f,10.0f);
-    
-    system->draw();
-    system2->draw();
-    system3->draw();
-    
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, floorColor);
-    glPushMatrix();
-    glTranslatef(0.0f,-5.0f,0.0f);
-    glScaled(50.0f,0.01f,50.0f);
-    glutSolidCube(1);
-    glPopMatrix();*/
-    
-    boidController->draw();
+  	if (image){boidController->draw();}
+  	else{boidSys -> draw();}
     
   }
         
@@ -164,16 +169,7 @@ namespace
             camera.SetCenter( Vector3f::ZERO );
             break;
         }
-       /* case 'r':
-        {
-            system = new ClothSystem(8, 8);
-            break;
-        }*/
-        case 'w':
-        {
-            system->toggleWind();
-            break;
-        }
+
         default:
             cout << "Unhandled key press " << key << "." << endl;        
         }
@@ -195,9 +191,9 @@ namespace
     //  Called when mouse button is pressed.
     void mouseFunc(int button, int state, int x, int y)
     {
-    	//cout << x << " " << y << endl;
+
     	int key = glutGetModifiers();
-    	//cout <<key << endl<< GLUT_ACTIVE_CTRL<< endl<< endl;
+
         if (state == GLUT_DOWN)
         {
             g_mousePressed = true;
@@ -208,26 +204,59 @@ namespace
                 if (key == GLUT_ACTIVE_CTRL){
                 	camera.MouseClick(Camera::LEFT, x, y);
                 }
+                else if(key == GLUT_ACTIVE_ALT){
+                    move_to_goal = true;
+                    Vector3f center = Vector3f::ZERO;
+                    if (image){
+						for (int i = 0; i < boidController -> m_systems.size();i++){
+							center = center + boidController -> m_systems[i].getCenterOfMass();
+						}
+						center = center/boidController -> m_systems.size();
+					}
+					else{
+						center = boidSys ->getCenterOfMass();
+					}
+                    center = center/boidController -> m_systems.size();
+                    goal = camera.Camera::getForcePoint(center, x, y);
+                }
+                else if(key == GLUT_ACTIVE_SHIFT){
+                    move_away_from_goal = true;
+                    Vector3f center = Vector3f::ZERO;
+                   if (image){
+						for (int i = 0; i < boidController -> m_systems.size();i++){
+							center = center + boidController -> m_systems[i].getCenterOfMass();
+						}
+						center = center/boidController -> m_systems.size();
+					}
+					else{
+						center = boidSys ->getCenterOfMass();
+					}
+                    center = center/boidController -> m_systems.size();
+                    goal = camera.Camera::getForcePoint(center, x, y);
+                }
                 else{
+                	Vector3f center = Vector3f::ZERO;
 
                 	if (drawF == false){
-                		Vector3f center = Vector3f::ZERO;
-                		for (int i = 0; i < boidController -> m_systems.size();i++){
-                			center = center + boidController -> m_systems[i].getCenterOfMass();
-                		}
-                		center = center/boidController -> m_systems.size();
+                		if (image){
+							for (int i = 0; i < boidController -> m_systems.size();i++){
+								center = center + boidController -> m_systems[i].getCenterOfMass();
+							}
+							center = center/boidController -> m_systems.size();
+							}
+							else{
+								center = boidSys ->getCenterOfMass();
+							}
 		            	Vector3f force = camera.Camera::getForcePoint(center, x, y);
 		            	f = force;
                 	}
                 	drawF = true;
-                	//cout <<"force at ";
-                	//f.print();
+
                 	cout << endl;
                 	vector<Force*> fv;
                 	Force *fp = new Force(f, 55, 0.03f);
                 	fv.push_back(fp);
                 	forces.push_back(fv);
-                	
                 }
                 break;
             case GLUT_MIDDLE_BUTTON:
@@ -244,6 +273,9 @@ namespace
             camera.MouseRelease(x,y);
             g_mousePressed = false;
             drawF = false;
+            move_to_start = false;
+            move_to_goal = false;
+            move_away_from_goal = false;
         }
         glutPostRedisplay();
     }
@@ -253,10 +285,15 @@ namespace
     {
         camera.MouseDrag(x,y);
         Vector3f center = Vector3f::ZERO;
-		for (int i = 0; i < boidController -> m_systems.size();i++){
-			center = center + boidController -> m_systems[i].getCenterOfMass();
+        if (image){
+			for (int i = 0; i < boidController -> m_systems.size();i++){
+				center = center + boidController -> m_systems[i].getCenterOfMass();
+			}
+			center = center/boidController -> m_systems.size();
 		}
-		center = center/boidController -> m_systems.size();
+		else{
+			center = boidSys ->getCenterOfMass();
+		}
     	Vector3f force = camera.Camera::getForcePoint(center, x, y);
     	f = force;       
     
@@ -376,12 +413,8 @@ namespace
 
     void timerFunc(int t)
     {
-    	//Vector3f before = boidSys->getCenterOfMass();
+
         stepSystem();
-        Matrix4f m = camera.projectionMatrix()*camera.viewMatrix();
-        //m.inverse();
-		//Vector4f moved = m*Vector4f((boidSys->getCenterOfMass()-before), 0.0f);
-		//camera.PlaneTranslation((int) moved.x(), (int) moved.y());
         glutPostRedisplay();
 
         glutTimerFunc(t, &timerFunc, t);
@@ -397,20 +430,6 @@ namespace
 // Set up OpenGL, define the callbacks and start the main loop
 int main( int argc, char* argv[] )
 {
-    //test image read/write
-    // char *input_file = argv[1];
-
-    // char *output_file = argv[2];
-    // Image *img = Image::readBMP(input_file);
-    // Image img_out( img->Width() , img->Height() );
-
-    // for(int i = 0; i < img->Width(); i++){
-    //     for(int j = 0; j < img->Height(); j++){
-    //         img_out.SetPixel(i, j, img->GetPixel(i, j));
-    //     }
-    // }
-    // img_out.SaveImage(output_file);
-
     //setup opengl
     glutInit( &argc, argv );
 

@@ -105,13 +105,10 @@ void OctTree::setPoint(Boid* b){
 		}
 	
 	else{
-		//cout << "pass through" << endl;
-		//cout << b << endl;
-		//b -> m_position.print();
-		//cout << getOct(b -> m_position) << " set new " << b << " ";
 		
 		children[getOct(b -> m_position)] -> setPoint(b);
 	}
+
 }
 
 Boid* OctTree::findBoidNearPoint(Vector3f p, Vector3f center, float d){

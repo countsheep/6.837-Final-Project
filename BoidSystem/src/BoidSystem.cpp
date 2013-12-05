@@ -4,27 +4,30 @@
 
 using namespace std;
 
-BoidSystem::BoidSystem(int numParticles, BoundingBox box):m_box(box){
+BoidSystem::BoidSystem(int numParticles, BoundingBox box, bool o):m_box(box){
+	useOct = o;
+	image = false;
 	m_numParticles = numParticles;
-	std::cout << "boid" << std::endl<< std::endl;;
+	//std::cout << "boid" << std::endl<< std::endl;;
 	
 	for (int i = 0; i < m_numParticles; i++){
 		Vector3f pos = m_box.getRandPosition();
-		//pos.print();
-		Boid *b = new Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
+
+		Boid *b = new Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f, false);
 		m_mahBoids.push_back(b);
-		//oct -> setPoint(b);
+
 		goalPos = m_box.getCenter();
 	}
-	oct = NULL;
 }
 
-BoidSystem::BoidSystem(BoundingBox box, Image* img):m_box(box){
+BoidSystem::BoidSystem(BoundingBox box, Image* img, bool o):m_box(box){
+	useOct = o;
+	image = true;
 	m_numParticles = img->Width() * img->Height();
 	for (int i = 0; i < img->Width(); i++){
 		for( int j = 0; j < img->Height(); j++){
 			Vector3f pos = Vector3f(0.075f*i, 0.075f*j, 0.0f);
-			Boid* b = new Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
+			Boid* b = new Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f, true);
 			b->m_color = img->GetPixel(i, j);
 			m_mahBoids.push_back(b);
 			goalPos = m_box.getCenter();
@@ -33,7 +36,9 @@ BoidSystem::BoidSystem(BoundingBox box, Image* img):m_box(box){
 }
 
 //initialize color boid
-BoidSystem::BoidSystem(BoundingBox box, vector<Boid*> boids, string main_color):m_box(box){
+BoidSystem::BoidSystem(BoundingBox box, vector<Boid*> boids, string main_color, bool o):m_box(box){
+	useOct = o;
+	image = true;
 	m_numParticles = boids.size();
 	m_mahBoids = boids;
 	goalPos = m_box.getCenter();
@@ -76,18 +81,23 @@ Vector3f BoidSystem::getCenterOfMassOfBoidsB(vector<Boid*> neighbors){
 	Vector3f pos = Vector3f::ZERO;
 	if(neighbors.size() == 0)
 		return Vector3f::ZERO;
-	//cout << "in neighbors" << endl;
+
 	for (int i = 0; i<neighbors.size(); i++){
 			pos += neighbors[i]->m_position;
 	}
-	//cout << "done" << endl;
+
 	return pos/(neighbors.size());
 }
 
+Vector3f BoidSystem::moveTowardCenterOfMassB(int b){
+	Vector3f c_m = getCenterOfMassOfBoidsB(getNearestNeighborsOct(b));
+
+	return 0.01f * (c_m - m_mahBoids[b]->m_position);
+}
 
 Vector3f BoidSystem::moveTowardCenterOfMass(int b){
-	Vector3f c_m = getCenterOfMassOfBoidsB(getNearestNeighborsOct(b));
-	//cout << b << endl;
+	Vector3f c_m = getCenterOfMassOfBoids(getNearestNeighbors(b));
+
 	return 0.01f * (c_m - m_mahBoids[b]->m_position);
 }
 
@@ -132,61 +142,66 @@ Vector3f BoidSystem::getAverageVelocity(int b){
 Vector3f BoidSystem::inBounds(int b){
 	Vector3f vel = Vector3f::ZERO;
 	Vector3f pos = m_mahBoids[b]->m_position;
-	/*cout << "Size of bounding box " << endl;
-	m_box.m_minCoords.print();
-	m_box.m_maxCoords.print();*/
+
 
 	// test x bounds
 	if(pos.x() < m_box.m_minCoords.x()){
 		vel += Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
-		//return false;
+
 	}
 	else if(pos.x() > m_box.m_maxCoords.x()){
 		vel -= Vector3f(m_box.getXDim() * 0.01f, 0.0f, 0.0f);
-		//return false;
+
 	}
 	// test y bounds
 	if(pos.y() < m_box.m_minCoords.y()){
 		vel += Vector3f(m_box.getYDim() * 0.0f, 0.01f, 0.0f);
-		//return false;
+
 	}
 	else if(pos.y() > m_box.m_maxCoords.y()){
 		vel -= Vector3f(m_box.getYDim() * 0.0f, 0.01f, 0.0f);
-		//return false;
+
 	}
 	// test z bounds
 	if(pos.z() < m_box.m_minCoords.z()){
 		vel += Vector3f(m_box.getZDim() * 0.0f, 0.0f, 0.01f);
-		//return false;
+
 	}
 	else if(pos.z() > m_box.m_maxCoords.z()){
 		vel -= Vector3f(m_box.getZDim() * 0.0f, 0.0f, 0.01f);
-		//return false;
+
 	}
 	return vel;
-	//return true;
+
 }
 
 
-void BoidSystem::stepSystem(vector<vector<Force*>> f){
-	//cout <<  m_mahBoids.size()<<endl;
-	//cout << oct << endl;
-	oct = new OctTree(m_box.getCenter(), Vector3f(m_box.getXDim(), m_box.getYDim(), m_box.getZDim())*10.0f);
-	//cout << "past new" << endl;
-	int n = m_mahBoids.size();
+
+void BoidSystem::stepSystem(vector<vector<Force*>> f, bool move_to_goal, bool move_away_from_goal, Vector3f goal){
+	if (useOct){
+		oct = new OctTree(m_box.getCenter(), Vector3f(m_box.getXDim(), m_box.getYDim(), m_box.getZDim())*10.0f);
 	
-	for (int i = 0; i<m_mahBoids.size(); i++){
-		//cout << "setting boid "<< i << " " << n << " " << m_mahBoids.size()<<endl;
-		oct -> setPoint(m_mahBoids[i]);
+	
+
+		int n = m_mahBoids.size();
+	
+		for (int i = 0; i<m_mahBoids.size(); i++){
+
+			oct -> setPoint(m_mahBoids[i]);
+		}
 	}
-	//cout << "past set" << endl;
+
+
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		vector<Vector3f> vels;
-		getAvoidanceOffset(i);
-		//vels.push_back(stayInBounds(i));
-		//if(inBounds(i)){
-			vels.push_back(moveTowardCenterOfMass(i));
-			//cout << "pushed i" << endl;
+		//move picture back to original goal
+
+		//otherwise calculate regular boid forces
+
+			getAvoidanceOffset(i);
+			if (useOct){vels.push_back(moveTowardCenterOfMassB(i));}
+			else{vels.push_back(moveTowardCenterOfMass(i));}
+
 			if(m_mahBoids[i]->m_avoidance_decay_counter > 0){
 				vels.push_back(m_mahBoids[i]->m_avoidanceVec*0.1f*m_mahBoids[i]->m_avoidance_decay_counter);
 				m_mahBoids[i]->m_avoidance_decay_counter -=1;
@@ -207,32 +222,33 @@ void BoidSystem::stepSystem(vector<vector<Force*>> f){
 				vels.push_back(m_box.getForceAtPoint(m_mahBoids[i]->m_position, -1));//defaultWind);
 			}
 			vels.push_back(inBounds(i));
-		//}
-		for (int i = 0; i < f.size(); i++){
-			vector<Force*> fv = f[i];
-			for (int j = 0; j < fv.size(); j++){
-				Force *force = fv[j];
-				Vector3f b_pos = m_mahBoids[i]->m_position;
-				Vector3f fc = force->getCenter();
-				Vector3f dif = b_pos-fc;
-				if (dif.abs() >= force -> getRadius()){
-					Vector3f f_vel = (2.0f/(force -> getRadius()*dif.abs()+1.0f))*(force->getScale())*(dif.normalized());
-					vels.push_back(f_vel);
-					
+			if(move_to_goal){
+				vels.push_back((goal - m_mahBoids[i]->m_position)*0.1f);
+			}
+			else if(move_away_from_goal){
+				vels.push_back((m_mahBoids[i]->m_position - goal)*0.1f);
+			}
+			for (int i = 0; i < f.size(); i++){
+				vector<Force*> fv = f[i];
+				for (int j = 0; j < fv.size(); j++){
+					Force *force = fv[j];
+					Vector3f b_pos = m_mahBoids[i]->m_position;
+					Vector3f fc = force->getCenter();
+					Vector3f dif = b_pos-fc;
+					if (dif.abs() >= force -> getRadius()){
+						Vector3f f_vel = (2.0f/(force -> getRadius()*dif.abs()+1.0f))*(force->getScale())*(dif.normalized());
+						vels.push_back(f_vel);
+						
+					}
 				}
 			}
-		}
-		
 		m_mahBoids[i]->move(vels);
-		m_mahBoids[i]->stepSystem();
-		//cout << "done with vels for step" << endl;
 	}
-	
+	if (useOct){
 	oct -> deleteChildren();
 	
-	//delete oct;
-	oct = NULL;
-	//cout << "again" << endl;
+
+	oct = NULL;}
 
 }
 
@@ -254,14 +270,9 @@ vector<Boid*> BoidSystem::getNearestNeighborsOct(int b){
 	}
 	return neighbors;
 }
-//cout << b << " out of " << m_mahBoids.size() << endl;
+
 vector<int> BoidSystem::getNearestNeighbors(int b){
-	// vector<int> neighbors;
-	// for(int i = 0; i < m_mahBoids.size(); i++){
-	// 	if(i != b && getDist(m_mahBoids[b].m_position, m_mahBoids[i].m_position) < m_box.getXDim() * 0.05f){
-	// 		neighbors.push_back(i);
-	// 	}
-	// }
+
 	vector<int> neighbors;
 	float furthest_close = 0.0f;
 	int furthest_close_boid = -1;
@@ -279,20 +290,13 @@ vector<int> BoidSystem::getNearestNeighbors(int b){
 		}
 		//otherwise check that it is closer than the furthest neighbor
 		else if(i != b && dist < furthest_close){
-			//cout << "furthest_close is " << furthest_close << " and dist is " << dist << endl;
-			//cout << "size is "<<neighbors.size() <<endl;
 			furthest_close = 0.0f;
 			int new_furthest_close_boid = -1;
 			float new_furthest_close = 0.0f;
 			for(int j = 0; j < neighbors.size(); j++){
-				//cout << "should delete "<< furthest_close_boid <<endl; 
-				//cout << "this loops is "<< neighbors[j] << endl;
 				if(neighbors[j]==furthest_close_boid){
-					//cout << "deleting" <<endl;
-					//cout << "size of dist before erase " << dists.size() <<endl;
 					dists.erase(dists.begin() + j);
 					neighbors.erase(neighbors.begin() + j);
-					//cout << "size of dist after erase " << dists.size() <<endl;
 				}
 				else if(dists[j] > new_furthest_close){
 					//set the current new furthest close boid
@@ -312,7 +316,6 @@ vector<int> BoidSystem::getNearestNeighbors(int b){
 		}
 	}
 	
-	//cout << "got Neighbors" << endl;
 	return neighbors;
 }
 
