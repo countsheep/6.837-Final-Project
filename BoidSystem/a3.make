@@ -81,6 +81,7 @@ OBJECTS := \
 	$(OBJDIR)/Force.o \
 	$(OBJDIR)/TimeStepper.o \
 	$(OBJDIR)/ClothSystem.o \
+	$(OBJDIR)/OctTree.o \
 
 RESOURCES := \
 
@@ -178,6 +179,9 @@ $(OBJDIR)/TimeStepper.o: src/TimeStepper.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/ClothSystem.o: src/ClothSystem.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/OctTree.o: src/OctTree.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 

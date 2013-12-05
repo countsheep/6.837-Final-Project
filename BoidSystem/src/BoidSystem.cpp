@@ -6,14 +6,17 @@ using namespace std;
 
 BoidSystem::BoidSystem(int numParticles, BoundingBox box):m_box(box){
 	m_numParticles = numParticles;
+	std::cout << "boid" << std::endl<< std::endl;;
 	
 	for (int i = 0; i < m_numParticles; i++){
 		Vector3f pos = m_box.getRandPosition();
 		//pos.print();
-		Boid* b = new Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
+		Boid *b = new Boid(pos, Vector3f::ZERO, m_box.getXDim() / 2.0f, 0.25f);
 		m_mahBoids.push_back(b);
+		//oct -> setPoint(b);
 		goalPos = m_box.getCenter();
 	}
+	oct = NULL;
 }
 
 BoidSystem::BoidSystem(BoundingBox box, Image* img):m_box(box){
@@ -69,8 +72,22 @@ Vector3f BoidSystem::getCenterOfMassOfBoids(vector<int> neighbors){
 	return pos/(neighbors.size());
 }
 
+Vector3f BoidSystem::getCenterOfMassOfBoidsB(vector<Boid*> neighbors){
+	Vector3f pos = Vector3f::ZERO;
+	if(neighbors.size() == 0)
+		return Vector3f::ZERO;
+	//cout << "in neighbors" << endl;
+	for (int i = 0; i<neighbors.size(); i++){
+			pos += neighbors[i]->m_position;
+	}
+	//cout << "done" << endl;
+	return pos/(neighbors.size());
+}
+
+
 Vector3f BoidSystem::moveTowardCenterOfMass(int b){
-	Vector3f c_m = getCenterOfMassOfBoids(getNearestNeighbors(b));
+	Vector3f c_m = getCenterOfMassOfBoidsB(getNearestNeighborsOct(b));
+	//cout << b << endl;
 	return 0.01f * (c_m - m_mahBoids[b]->m_position);
 }
 
@@ -152,12 +169,24 @@ Vector3f BoidSystem::inBounds(int b){
 
 
 void BoidSystem::stepSystem(vector<vector<Force*>> f){
+	//cout <<  m_mahBoids.size()<<endl;
+	//cout << oct << endl;
+	oct = new OctTree(m_box.getCenter(), Vector3f(m_box.getXDim(), m_box.getYDim(), m_box.getZDim())*10.0f);
+	//cout << "past new" << endl;
+	int n = m_mahBoids.size();
+	
+	for (int i = 0; i<m_mahBoids.size(); i++){
+		//cout << "setting boid "<< i << " " << n << " " << m_mahBoids.size()<<endl;
+		oct -> setPoint(m_mahBoids[i]);
+	}
+	//cout << "past set" << endl;
 	for (int i = 0; i<m_mahBoids.size(); i++){
 		vector<Vector3f> vels;
 		getAvoidanceOffset(i);
 		//vels.push_back(stayInBounds(i));
 		//if(inBounds(i)){
 			vels.push_back(moveTowardCenterOfMass(i));
+			//cout << "pushed i" << endl;
 			if(m_mahBoids[i]->m_avoidance_decay_counter > 0){
 				vels.push_back(m_mahBoids[i]->m_avoidanceVec*0.1f*m_mahBoids[i]->m_avoidance_decay_counter);
 				m_mahBoids[i]->m_avoidance_decay_counter -=1;
@@ -193,11 +222,39 @@ void BoidSystem::stepSystem(vector<vector<Force*>> f){
 				}
 			}
 		}
+		
 		m_mahBoids[i]->move(vels);
 		m_mahBoids[i]->stepSystem();
+		//cout << "done with vels for step" << endl;
 	}
+	
+	oct -> deleteChildren();
+	
+	//delete oct;
+	oct = NULL;
+	//cout << "again" << endl;
+
 }
 
+vector<Boid*> BoidSystem::getNearestNeighborsOct(int b){
+	OctTree* o = oct -> findOct(m_mahBoids[b]);
+	
+	vector<Boid*> neighbors;
+	
+	if (o != NULL){
+		neighbors = o -> findClosestNeighbors();
+	}
+	
+	else{
+		vector<int> n = getNearestNeighbors(b);
+		for (int i = 0; i < n.size(); i++){
+			neighbors.push_back(m_mahBoids[i]);
+		}
+		
+	}
+	return neighbors;
+}
+//cout << b << " out of " << m_mahBoids.size() << endl;
 vector<int> BoidSystem::getNearestNeighbors(int b){
 	// vector<int> neighbors;
 	// for(int i = 0; i < m_mahBoids.size(); i++){
@@ -254,7 +311,8 @@ vector<int> BoidSystem::getNearestNeighbors(int b){
 			neighbors.push_back(i);
 		}
 	}
-
+	
+	//cout << "got Neighbors" << endl;
 	return neighbors;
 }
 

@@ -8,6 +8,7 @@
 #include "Image.h"
 #include <string>
 #include "Force.h"
+#include "OctTree.h"
 
 using namespace std;
 
@@ -39,6 +40,8 @@ public:
 	Vector3f getCenterOfMass();
 	Vector3f getCenterOfMassMinusB(int b);
 	Vector3f getCenterOfMassOfBoids(vector<int> neighbors);
+	Vector3f getCenterOfMassOfBoidsB(vector<Boid*> neighbors);
+	
 	Vector3f moveTowardCenterOfMass(int b);
 	Vector3f moveAwayFromForceSphere(int b);
 	Vector3f moveTowardsGoalPoint(int b);
@@ -47,11 +50,14 @@ public:
 	Vector3f inBounds(int b);
 	void stepSystem(vector<vector<Force*>> f);
 
+	vector<Boid*> getNearestNeighborsOct(int b);
 	vector<int> getNearestNeighbors(int b);
 
 	static float getDist(Vector3f p1, Vector3f p2);
 	
 	void draw();
+	
+	OctTree* oct;
 	
 };
 
